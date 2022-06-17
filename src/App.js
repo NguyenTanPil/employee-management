@@ -1,24 +1,30 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState } from 'react';
+import GirdLayout from './components/GirdLayout';
+import Header from './components/Header';
+import Home from './components/Pages/Home';
+import GlobalStyles from './GlobalStyles';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import EmployeeDetail from './components/Pages/EmployeeDetail';
+import Team from './components/Pages/Team';
 
 function App() {
+  const [activeTab, setActiveTab] = useState(0);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <GlobalStyles />
+      <GirdLayout>
+        <Router>
+          <Header activeTab={activeTab} setActiveTab={setActiveTab} />
+          <Routes>
+            <Route exact path="/team" element={<Team />} />
+            <Route path="/employee" element={<Home />} />
+            <Route path="/employee/:employeeId" element={<EmployeeDetail />} />
+            <Route path="*" element={<Home />} />
+          </Routes>
+        </Router>
+      </GirdLayout>
+    </>
   );
 }
 
