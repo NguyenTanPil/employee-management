@@ -1,0 +1,90 @@
+{
+  "employees": [
+    {
+      "id": "1",
+      "fullName": "Tran Thi Huong",
+      "phoneNumber": "00123456789",
+      "team": "Manager",
+      "address": "Ha Noi",
+      "age": 12,
+      "startDay": "2022-06-14",
+      "sex": "male",
+      "deleted": false,
+      "moneyPerHour": 0
+    },
+    {
+      "id": "2",
+      "fullName": "Vo Chi Thanh",
+      "phoneNumber": "00123456789",
+      "team": "IT Support",
+      "address": "Ha Noi",
+      "age": 12,
+      "startDay": "2022-06-14",
+      "sex": "male",
+      "deleted": true,
+      "moneyPerHour": 7
+    },
+    {
+      "id": "3",
+      "fullName": "Tran Van Long",
+      "phoneNumber": "0123456789",
+      "team": "Engineer",
+      "address": "Ha Noi",
+      "age": 12,
+      "startDay": "2022-06-14",
+      "sex": "male",
+      "deleted": false,
+      "moneyPerHour": 6
+    },
+    {
+      "id": "4",
+      "fullName": "Tran Thi Manh Huong",
+      "phoneNumber": "0123456789",
+      "team": "Manager",
+      "address": "Ha Noi",
+      "age": 12,
+      "startDay": "2022-06-14",
+      "sex": "male",
+      "deleted": false,
+      "moneyPerHour": 1
+    },
+    {
+      "id": "5",
+      "fullName": "Vo Thi Mai Phong",
+      "phoneNumber": "0123456789",
+      "team": "Engineer",
+      "address": "Ha Noi",
+      "age": 12,
+      "startDay": "2022-06-14",
+      "sex": "male",
+      "deleted": false,
+      "moneyPerHour": 2
+    },
+    {
+      "id": "6",
+      "deleted": false,
+      "team": "manager",
+      "fullName": "Tan Pil",
+      "address": "Kien Giang",
+      "age": 2,
+      "sex": "male",
+      "startDay": "2022-06-14",
+      "moneyPerHour": 4,
+      "phoneNumber": "0989898989"
+    }
+  ],
+  "teams": [
+    {
+      "id": 1,
+      "teamName": "Manager"
+    },
+    {
+      "id": 2,
+      "teamName": "IT Support"
+    },
+    {
+      "id": 3,
+      "teamName": "QA"
+    }
+  ]
+}

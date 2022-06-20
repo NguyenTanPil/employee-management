@@ -23,6 +23,10 @@ import AddModal from '../../AddModal';
 import AlertDeleteModal from '../../AlertDeleteModal';
 import WorkingContent from '../../WorkingContent';
 import AddEmployeeForm from '../../AddEmployeeForm';
+import { useParams } from 'react-router-dom';
+import { useQuery, useQueryClient } from 'react-query';
+import { fetchEmployeeById } from '../../../utils/fetching';
+import LoadingSpinner from '../../LoadingSpinner';
 
 const employeeData = [
   {
@@ -106,7 +110,21 @@ const advanceData = [
 ];
 
 const EmployeeDetail = () => {
-  const [employee, setEmployee] = useState(employeeData[2]);
+  const { employeeId } = useParams();
+  const queryClient = useQueryClient();
+  const {
+    data: employee,
+    isLoading,
+    error,
+  } = useQuery(['getEmployee', employeeId], fetchEmployeeById, {
+    enable: !!employeeId,
+    initialData: () => {
+      return queryClient
+        .getQueryData('getEmployeeData')
+        ?.find((e) => e.id === employeeId);
+    },
+  });
+  // const [employee, setEmployee] = useState(employeeData[2]);
   const [activeTab, setActiveTab] = useState(0);
   const [isShowEditModal, setIsShowEditModal] = useState(false);
   const [isShowDeleteModal, setIsShowDeleteModal] = useState(false);
@@ -114,7 +132,7 @@ const EmployeeDetail = () => {
 
   const handleEditEmployee = (values) => {
     setIsShowEditModal(false);
-    setEmployee(values);
+    // setEmployee(values);
   };
 
   const handleDeleteEmployee = (idx) => {
@@ -148,7 +166,7 @@ const EmployeeDetail = () => {
       />
 
       <AlertDeleteModal
-        deleteIdx={employee.no}
+        deleteIdx={employee.id}
         title="Are you sure to delete this employee?"
         message="Will delete this employee!"
         isShowModal={isShowDeleteModal}
@@ -184,7 +202,7 @@ const EmployeeDetail = () => {
             />
           </Avatar>
           <ButtonGroup>
-            <OriginTextButton active>No : {employee.no}</OriginTextButton>
+            <OriginTextButton active>No : {employee.id}</OriginTextButton>
             <OriginTextButton active success>
               Age : {employee.age}
             </OriginTextButton>

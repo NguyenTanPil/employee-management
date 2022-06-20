@@ -3,6 +3,11 @@ import { RiAddLine } from 'react-icons/ri';
 import { TbListDetails } from 'react-icons/tb';
 import { IconButton } from '../../../common/Button';
 import { Table, TRow, TRowItem } from '../../../common/Table';
+import {
+  fetchEmployeeByTeamId,
+  fetchEmployeeData,
+  fetchTeamData,
+} from '../../../utils/fetching';
 import AddModal from '../../AddModal';
 import AddTeamForm from '../../AddTeamForm';
 import NoneSpinner from '../../NoneSpinner';
@@ -13,98 +18,36 @@ import {
   SideTitle,
 } from '../Home/EmployeeListStyles';
 import { TableCaption, EmployeeTable, SideTeam, TeamTable } from './TeamStyles';
-
-const teams = [
-  {
-    no: 1,
-    teamName: 'manager',
-  },
-  {
-    no: 2,
-    teamName: 'IT Support',
-  },
-  {
-    no: 3,
-    teamName: 'QA',
-  },
-];
-
-const employeeData = [
-  {
-    no: '1',
-    fullName: 'Tran Thi Huong',
-    phoneNumber: '123456789',
-    team: 'manager',
-    address: 'Ha Noi',
-    age: 12,
-    startDay: '2022-06-14',
-    sex: 'male',
-    deleted: false,
-    moneyPerHour: 0,
-  },
-  {
-    no: '2',
-    fullName: 'Vo Chi Thanh',
-    phoneNumber: '123456789',
-    team: 'IT Support',
-    address: 'Ha Noi',
-    age: 12,
-    startDay: '2022-06-14',
-    sex: 'male',
-    deleted: false,
-    moneyPerHour: 0,
-  },
-  {
-    no: '3',
-    fullName: 'Tran Van Long',
-    phoneNumber: '123456789',
-    team: 'engineer',
-    address: 'Ha Noi',
-    age: 12,
-    startDay: '2022-06-14',
-    sex: 'male',
-    deleted: false,
-    moneyPerHour: 0,
-  },
-  {
-    no: '4',
-    fullName: 'Tran Thi Manh Huong',
-    phoneNumber: '123456789',
-    team: 'manager',
-    address: 'Ha Noi',
-    age: 12,
-    startDay: '2022-06-14',
-    sex: 'male',
-    deleted: false,
-    moneyPerHour: 0,
-  },
-  {
-    no: '5',
-    fullName: 'Vo Thi Mai Phong',
-    phoneNumber: '123456789',
-    team: 'IT Support',
-    address: 'Ha Noi',
-    age: 12,
-    startDay: '2022-06-14',
-    sex: 'male',
-    deleted: false,
-    moneyPerHour: 0,
-  },
-];
+import { useQuery, useQueryClient } from 'react-query';
+import LoadingSpinner from '../../LoadingSpinner';
+import { useEffect } from 'react';
 
 const Team = () => {
-  const [data, setData] = useState(teams);
-  const [teamName, setTeamName] = useState(teams[0].teamName);
+  const queryClient = useQueryClient();
+  const {
+    data: teams,
+    isLoading: isLoadingTeams,
+    error,
+  } = useQuery('teams', fetchTeamData);
+
+  const [teamName, setTeamName] = useState();
   const [isShowAddModal, setIsShowAddModal] = useState(false);
   const formikRef = useRef();
-  const [employeeList, setEmployeeList] = useState(() => {
-    return employeeData.filter((employee) => employee.team === teamName);
+
+  const {
+    data: employeeList,
+    isLoading: isLoadingEmployees,
+    isIdle: isIdleEmployees,
+  } = useQuery(['getEmployeeByFilter', teamName], fetchEmployeeByTeamId, {
+    enabled: !!teamName,
+    initialData() {
+      return queryClient
+        .getQueryData('getEmployeeData')
+        ?.filter((e) => e.team === teamName);
+    },
   });
 
   const handleChooseTeam = (teamName) => {
-    setEmployeeList(() => {
-      return employeeData.filter((employee) => employee.team === teamName);
-    });
     setTeamName(teamName);
   };
 
@@ -114,14 +57,28 @@ const Team = () => {
   };
 
   const handleAddNewTeam = (values) => {
-    let newData = [...data];
+    let newData = [...teams];
     newData.push({
-      no: newData.length + 1,
+      id: newData.length + 1,
       ...values,
     });
     handleCloseModal();
-    setData(newData);
+    // setData(newData);
   };
+
+  useEffect(() => {
+    if (teams) {
+      setTeamName(teams[0].teamName);
+    }
+  }, [teams]);
+
+  if (isLoadingTeams || isLoadingEmployees || isIdleEmployees) {
+    return <LoadingSpinner />;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
 
   return (
     <Container>
@@ -157,9 +114,9 @@ const Team = () => {
               <TRowItem>Team Name</TRowItem>
               <TRowItem>Detail</TRowItem>
             </TRow>
-            {data.map((item) => (
-              <TRow key={item.no}>
-                <TRowItem data-label="No">{item.no}</TRowItem>
+            {teams.map((item) => (
+              <TRow key={item.id}>
+                <TRowItem data-label="No">{item.id}</TRowItem>
                 <TRowItem data-label="Team Name">{item.teamName}</TRowItem>
                 <TRowItem data-label="Detail">
                   <IconButton
@@ -193,8 +150,8 @@ const Team = () => {
                   <TRowItem>Sex</TRowItem>
                 </TRow>
                 {employeeList.map((item) => (
-                  <TRow key={item.no}>
-                    <TRowItem data-label="No">{item.no}</TRowItem>
+                  <TRow key={item.id}>
+                    <TRowItem data-label="No">{item.id}</TRowItem>
                     <TRowItem data-label="FullName">{item.fullName}</TRowItem>
                     <TRowItem data-label="Phone">{item.phoneNumber}</TRowItem>
                     <TRowItem data-label="Address">{item.address}</TRowItem>

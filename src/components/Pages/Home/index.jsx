@@ -1,13 +1,20 @@
-import { useRef, useState } from 'react';
-import { TbListDetails } from 'react-icons/tb';
+import { useEffect, useRef, useState } from 'react';
 import { CgTrash } from 'react-icons/cg';
 import { RiAddLine } from 'react-icons/ri';
+import { TbListDetails } from 'react-icons/tb';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { IconButton, IconLinkButton } from '../../../common/Button';
 import { CheckBox } from '../../../common/Input';
 import { Table, TRow, TRowItem } from '../../../common/Table';
+import {
+  addNewEmployee,
+  deleteEmployee,
+  fetchEmployeeData,
+} from '../../../utils/fetching';
 import AddEmployeeForm from '../../AddEmployeeForm';
 import AddModal from '../../AddModal';
 import AlertDeleteModal from '../../AlertDeleteModal';
+import LoadingSpinner from '../../LoadingSpinner';
 import NoneSpinner from '../../NoneSpinner';
 import Pagination from '../../Pagination';
 import SearchBar from '../../SearchBar';
@@ -102,16 +109,46 @@ const createCheckedList = (employeeData) => {
 };
 
 const Home = () => {
-  const [checkedList, setCheckedList] = useState(
-    createCheckedList(employeeData)
-  );
-  const [data, setData] = useState([...employeeData]);
+  const queryClient = useQueryClient();
+  // states
+  const {
+    data: employeeList,
+    isLoading,
+    error,
+  } = useQuery('getEmployeeData', fetchEmployeeData);
+  const [checkedList, setCheckedList] = useState();
 
   const [isShowAddModal, setIsShowAddModal] = useState(false);
   const [isShowDeleteAllModal, setIsShowDeleteAllModal] = useState(false);
   const [isShowDeleteModal, setIsShowDeleteModal] = useState(false);
   const [deleteIdx, setDeleteIdx] = useState(0);
   const formikRef = useRef();
+
+  // functions
+  const { mutate: addNewEmployeeMutate } = useMutation(addNewEmployee, {
+    onSuccess(newEmployee) {
+      // update check list
+      setCheckedList(createCheckedList([...employeeList, newEmployee]));
+      // update data
+      queryClient.setQueryData('getEmployeeData', [
+        ...employeeList,
+        newEmployee,
+      ]);
+    },
+  });
+
+  const { mutate: deleteEmployeeMutate } = useMutation(deleteEmployee, {
+    onSuccess(deletedEmployee) {
+      // update check list
+      setCheckedList((prev) =>
+        prev.filter((item) => item.id === deletedEmployee.id)
+      );
+      // update data
+      queryClient.setQueryData('getEmployeeData', (prev) =>
+        prev.filter((item) => item.id === deletedEmployee.id)
+      );
+    },
+  });
 
   const handleChecked = (idx) => {
     let newCheckedList;
@@ -140,27 +177,31 @@ const Home = () => {
   };
 
   const handleDeleteAllSelected = (idx) => {
-    const newData = data.map((item) => ({
+    const newData = employeeList.map((item) => ({
       ...item,
       deleted:
-        checkedList[item.no].status || item.no === idx ? true : item.deleted,
+        checkedList[item.id].status || item.no === idx ? true : item.deleted,
     }));
-    setData(newData);
+    console.log(idx);
+    if (idx) {
+      deleteEmployeeMutate(idx);
+    } else {
+      console.log('deleted all');
+    }
+    // setData(newData);
     setDeleteIdx(0);
     setCheckedList(createCheckedList(newData));
   };
 
   const handleAddNewEmployee = (values) => {
-    let newData = [...data];
-    newData.push({
-      no: newData.length + 1,
+    const newEmployee = {
+      id: employeeList.length + 1 + '',
       deleted: false,
       team: 'manager',
       ...values,
-    });
+    };
     setIsShowAddModal(false);
-    setData(newData);
-    setCheckedList(createCheckedList(newData));
+    addNewEmployeeMutate(newEmployee);
   };
 
   const handleShowDeleteEmployeeModal = (idx) => {
@@ -172,6 +213,22 @@ const Home = () => {
     setIsShowAddModal(false);
     formikRef.current.resetFormik();
   };
+
+  useEffect(() => {
+    if (employeeList) {
+      setCheckedList(
+        createCheckedList(employeeList.filter((item) => !item.deleted))
+      );
+    }
+  }, [employeeList]);
+
+  if (isLoading || !checkedList) {
+    return <LoadingSpinner />;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
 
   return (
     <Container>
@@ -231,13 +288,13 @@ const Home = () => {
       </SideTitle>
       <SideSearch>
         <EmployeeTotal>
-          <h3>Total: {data.length}</h3>
+          <h3>Total: {employeeList.length}</h3>
         </EmployeeTotal>
         <SearchBar placeholder="Search employee by name..." />
       </SideSearch>
       <SideEmployeeList>
         <h4>Search Result</h4>
-        {data.filter((item) => !item.deleted).length === 0 ? (
+        {employeeList.filter((item) => !item.deleted).length === 0 ? (
           <NoneSpinner text="Don't have any employee" />
         ) : (
           <Table type="secondary" widthCols={[10, 10, 25, 15, 20, 20]}>
@@ -254,28 +311,31 @@ const Home = () => {
               <TRowItem>Team</TRowItem>
               <TRowItem>Options</TRowItem>
             </TRow>
-            {data.map((employee, idx) =>
+
+            {employeeList.map((employee, idx) =>
               employee.deleted ? null : (
-                <TRow key={employee.no}>
+                <TRow key={employee.id}>
                   <TRowItem>
+                    {console.log(employee)}
+                    {console.log(checkedList[idx + 1])}
                     <CheckBox
                       active={checkedList[idx + 1].status}
                       onClick={() => handleChecked(idx + 1)}
                     />
                   </TRowItem>
-                  <TRowItem data-label="No">{employee.no}</TRowItem>
+                  <TRowItem data-label="No">{employee.id}</TRowItem>
                   <TRowItem data-label="FullName">{employee.fullName}</TRowItem>
                   <TRowItem data-label="Phone">{employee.phoneNumber}</TRowItem>
                   <TRowItem data-label="Team">{employee.team}</TRowItem>
                   <TRowItem data-label="Options">
                     <Options>
-                      <IconLinkButton to={`/employee/${employee.no}`}>
+                      <IconLinkButton to={`/employee/${employee.id}`}>
                         <TbListDetails />
                       </IconLinkButton>
                       <IconButton
                         danger
                         onClick={() =>
-                          handleShowDeleteEmployeeModal(employee.no)
+                          handleShowDeleteEmployeeModal(employee.id)
                         }
                       >
                         <CgTrash />

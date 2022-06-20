@@ -19,4 +19,8 @@ export const Container = styled.div`
     font-weight: 600;
     margin-top: 0.8rem;
   }
+
+  img {
+    width: 60vw;
+  }
 `;
