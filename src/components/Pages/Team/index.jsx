@@ -1,15 +1,14 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { RiAddLine } from 'react-icons/ri';
 import { TbListDetails } from 'react-icons/tb';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { IconButton } from '../../../common/Button';
 import { Table, TRow, TRowItem } from '../../../common/Table';
-import {
-  fetchEmployeeByTeamId,
-  fetchEmployeeData,
-  fetchTeamData,
-} from '../../../utils/fetching';
+import { fetchEmployeeByTeamId } from '../../../utils/employeeApi';
+import { createNewTeam, fetchTeamData } from '../../../utils/teamApi';
 import AddModal from '../../AddModal';
 import AddTeamForm from '../../AddTeamForm';
+import LoadingSpinner from '../../LoadingSpinner';
 import NoneSpinner from '../../NoneSpinner';
 import {
   Container,
@@ -17,18 +16,17 @@ import {
   EmployeeControlItem,
   SideTitle,
 } from '../Home/EmployeeListStyles';
-import { TableCaption, EmployeeTable, SideTeam, TeamTable } from './TeamStyles';
-import { useQuery, useQueryClient } from 'react-query';
-import LoadingSpinner from '../../LoadingSpinner';
-import { useEffect } from 'react';
+import { EmployeeTable, SideTeam, TableCaption, TeamTable } from './TeamStyles';
 
 const Team = () => {
   const queryClient = useQueryClient();
+
+  // state
   const {
-    data: teams,
-    isLoading: isLoadingTeams,
-    error,
-  } = useQuery('teams', fetchTeamData);
+    data: teamList,
+    isLoading: isTeamListLoading,
+    error: teamListError,
+  } = useQuery('getTeamData', fetchTeamData);
 
   const [teamName, setTeamName] = useState();
   const [isShowAddModal, setIsShowAddModal] = useState(false);
@@ -36,20 +34,18 @@ const Team = () => {
 
   const {
     data: employeeList,
-    isLoading: isLoadingEmployees,
-    isIdle: isIdleEmployees,
+    isLoading: isEmployeeListLoading,
+    isIdle: isEmployeeListIdle,
   } = useQuery(['getEmployeeByFilter', teamName], fetchEmployeeByTeamId, {
     enabled: !!teamName,
-    initialData() {
-      return queryClient
-        .getQueryData('getEmployeeData')
-        ?.filter((e) => e.team === teamName);
-    },
   });
 
-  const handleChooseTeam = (teamName) => {
-    setTeamName(teamName);
-  };
+  // functions
+  const { mutate: createNewTeamMutate } = useMutation(createNewTeam, {
+    onSuccess(newTeam) {
+      queryClient.setQueryData('getTeamData', [...teamList, newTeam]);
+    },
+  });
 
   const handleCloseModal = () => {
     setIsShowAddModal(false);
@@ -57,27 +53,26 @@ const Team = () => {
   };
 
   const handleAddNewTeam = (values) => {
-    let newData = [...teams];
-    newData.push({
-      id: newData.length + 1,
+    const newTeam = {
+      id: teamList.length + 1 + '',
       ...values,
-    });
-    handleCloseModal();
-    // setData(newData);
+    };
+    handleCloseModal(false);
+    createNewTeamMutate(newTeam);
   };
 
   useEffect(() => {
-    if (teams) {
-      setTeamName(teams[0].teamName);
+    if (teamList) {
+      setTeamName(teamList[0].teamName);
     }
-  }, [teams]);
+  }, [teamList]);
 
-  if (isLoadingTeams || isLoadingEmployees || isIdleEmployees) {
+  if (isTeamListLoading || isEmployeeListLoading || isEmployeeListIdle) {
     return <LoadingSpinner />;
   }
 
-  if (error) {
-    return <div>Error: {error.message}</div>;
+  if (teamListError) {
+    return <div>Error: {teamListError.message}</div>;
   }
 
   return (
@@ -107,22 +102,22 @@ const Team = () => {
       </SideTitle>
       <SideTeam>
         <TeamTable>
-          <TableCaption>Total {teams.length} teams</TableCaption>
+          <TableCaption>Total {teamList.length} teams</TableCaption>
           <Table type="secondary" widthCols={[20, 50, 30]}>
             <TRow isRowTitle>
               <TRowItem>No</TRowItem>
               <TRowItem>Team Name</TRowItem>
               <TRowItem>Detail</TRowItem>
             </TRow>
-            {teams.map((item) => (
+            {teamList.map((item, idx) => (
               <TRow key={item.id}>
-                <TRowItem data-label="No">{item.id}</TRowItem>
+                <TRowItem data-label="No">{idx + 1}</TRowItem>
                 <TRowItem data-label="Team Name">{item.teamName}</TRowItem>
                 <TRowItem data-label="Detail">
                   <IconButton
                     pt="0"
                     pb="0"
-                    onClick={() => handleChooseTeam(item.teamName)}
+                    onClick={() => setTeamName(item.teamName)}
                   >
                     <TbListDetails />
                   </IconButton>

@@ -1,9 +1,32 @@
 import { useRef, useState } from 'react';
-import { CgTrash } from 'react-icons/cg';
 import { BiEditAlt } from 'react-icons/bi';
+import { CgTrash } from 'react-icons/cg';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { useNavigate, useParams } from 'react-router-dom';
 import { IconButton, OriginTextButton } from '../../../common/Button';
+import {
+  createNewAdvance,
+  deleteAdvanceById,
+  fetchAdvanceByEmployeeId,
+} from '../../../utils/advanceApi';
+import {
+  deleteEmployee,
+  fetchEmployeeById,
+  updateEmployee,
+} from '../../../utils/employeeApi';
+import { fetchTeamData } from '../../../utils/teamApi';
+import {
+  createNewWorking,
+  deleteWorkingById,
+  fetchWorkingByEmployeeId,
+} from '../../../utils/workingApi';
+import AddEmployeeForm from '../../AddEmployeeForm';
+import AddModal from '../../AddModal';
+import AlertDeleteModal from '../../AlertDeleteModal';
 import InformationContent from '../../InformationContent';
+import LoadingSpinner from '../../LoadingSpinner';
 import NavTab from '../../NavTab';
+import WorkingContent from '../../WorkingContent';
 import {
   Container,
   EmployeeControl,
@@ -19,135 +42,70 @@ import {
   TabContentContainer,
   TabContentItem,
 } from './EmployeeDetailStyles';
-import AddModal from '../../AddModal';
-import AlertDeleteModal from '../../AlertDeleteModal';
-import WorkingContent from '../../WorkingContent';
-import AddEmployeeForm from '../../AddEmployeeForm';
-import { useParams } from 'react-router-dom';
-import { useQuery, useQueryClient } from 'react-query';
-import { fetchEmployeeById } from '../../../utils/fetching';
-import LoadingSpinner from '../../LoadingSpinner';
-
-const employeeData = [
-  {
-    no: '1',
-    fullName: 'Tran Thi Huong',
-    phoneNumber: '123456789',
-    team: 'Manager',
-    address: 'Ha Noi',
-    age: 12,
-    startDay: '2022-06-14',
-    sex: 'male',
-    deleted: false,
-    moneyPerHour: 0,
-  },
-  {
-    no: '2',
-    fullName: 'Vo Chi Thanh',
-    phoneNumber: '123456789',
-    team: 'IT Support',
-    address: 'Ha Noi',
-    age: 12,
-    startDay: '2022-06-14',
-    sex: 'male',
-    deleted: false,
-    moneyPerHour: 0,
-  },
-  {
-    no: '3',
-    fullName: 'Tran Van Long',
-    phoneNumber: '123456789',
-    team: 'Engineer',
-    address: 'Ha Noi',
-    age: 12,
-    startDay: '2022-06-14',
-    sex: 'male',
-    deleted: false,
-    moneyPerHour: 0,
-  },
-  {
-    no: '4',
-    fullName: 'Tran Thi Manh Huong',
-    phoneNumber: '123456789',
-    team: 'Manager',
-    address: 'Ha Noi',
-    age: 12,
-    startDay: '2022-06-14',
-    sex: 'male',
-    deleted: false,
-    moneyPerHour: 0,
-  },
-  {
-    no: '5',
-    fullName: 'Vo Thi Mai Phong',
-    phoneNumber: '123456789',
-    team: 'Engineer',
-    address: 'Ha Noi',
-    age: 12,
-    startDay: '2022-06-14',
-    sex: 'male',
-    deleted: false,
-    moneyPerHour: 0,
-  },
-];
-
-const workingData = [
-  {
-    no: 1,
-    date: '2022-06-14',
-    hours: 8,
-    deleted: false,
-  },
-];
-
-const advanceData = [
-  {
-    no: 1,
-    date: '2022-06-14',
-    money: 8,
-    deleted: false,
-  },
-];
 
 const EmployeeDetail = () => {
-  const { employeeId } = useParams();
+  const { page, employeeId } = useParams();
   const queryClient = useQueryClient();
-  const {
-    data: employee,
-    isLoading,
-    error,
-  } = useQuery(['getEmployee', employeeId], fetchEmployeeById, {
-    enable: !!employeeId,
-    initialData: () => {
-      return queryClient
-        .getQueryData('getEmployeeData')
-        ?.find((e) => e.id === employeeId);
-    },
-  });
-  // const [employee, setEmployee] = useState(employeeData[2]);
+  const navigate = useNavigate();
+
+  const { data: employee, isLoading: isEmployeeLoading } = useQuery(
+    ['getEmployee', employeeId],
+    fetchEmployeeById,
+    {
+      enable: !!employeeId && !!page,
+      initialData: () => {
+        return queryClient
+          .getQueryData(['getEmployeeData', page])
+          .data?.find((e) => e.id === employeeId);
+      },
+    }
+  );
+  const { data: teamList, isLoading: isTeamListLoading } = useQuery(
+    'getTeamData',
+    fetchTeamData
+  );
+
   const [activeTab, setActiveTab] = useState(0);
   const [isShowEditModal, setIsShowEditModal] = useState(false);
   const [isShowDeleteModal, setIsShowDeleteModal] = useState(false);
   const formikRef = useRef();
 
+  // functions
+  const { mutate: updateEmployeeMutate } = useMutation(updateEmployee, {
+    onSuccess(newEmployee) {
+      queryClient.setQueryData(['getEmployee', newEmployee.id], newEmployee);
+    },
+  });
+
+  const { mutate: deleteEmployeeMutate } = useMutation(deleteEmployee, {
+    onSuccess(deletedEmployee) {
+      // update data
+      queryClient.setQueryData('getEmployeeData', (prev) =>
+        prev.filter((item) => item.id !== deletedEmployee.id)
+      );
+
+      // redirect to home
+      navigate('/');
+    },
+  });
+
   const handleEditEmployee = (values) => {
     setIsShowEditModal(false);
-    // setEmployee(values);
+    updateEmployeeMutate(values);
   };
 
   const handleDeleteEmployee = (idx) => {
-    const newData = employeeData.map((item) => ({
-      ...item,
-      deleted: item.no === idx ? true : item.deleted,
-    }));
-    console.log(newData);
-    setIsShowDeleteModal(false);
+    deleteEmployeeMutate(idx);
   };
 
   const handleCloseModal = () => {
     setIsShowEditModal(false);
     formikRef.current.resetFormik();
   };
+
+  if (isEmployeeLoading || isTeamListLoading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <Container>
@@ -157,6 +115,7 @@ const EmployeeDetail = () => {
           <AddEmployeeForm
             ref={formikRef}
             initialValues={employee}
+            teams={teamList}
             handleShowModal={setIsShowEditModal}
             handleAddNewEmployee={handleEditEmployee}
           />
@@ -225,16 +184,22 @@ const EmployeeDetail = () => {
               <WorkingContent
                 title="Working"
                 name="working"
-                data={workingData}
                 anotherField="hours"
+                employeeId={employee.id}
+                fetchFn={fetchWorkingByEmployeeId}
+                createFn={createNewWorking}
+                deleteFn={deleteWorkingById}
               />
             </TabContentItem>
             <TabContentItem active={activeTab === 2}>
               <WorkingContent
                 title="Advances"
-                name="advance"
-                data={advanceData}
+                name="advances"
                 anotherField="money"
+                employeeId={employee.id}
+                fetchFn={fetchAdvanceByEmployeeId}
+                createFn={createNewAdvance}
+                deleteFn={deleteAdvanceById}
               />
             </TabContentItem>
           </TabContentContainer>

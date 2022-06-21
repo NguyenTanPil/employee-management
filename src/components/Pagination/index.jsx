@@ -27,25 +27,43 @@ const handleButtonEffect = (e) => {
   }, 1000);
 };
 
-const Pagination = () => {
+const Pagination = ({ pageNumber, page, setPage }) => {
+  const handlePrevPage = (e) => {
+    handleButtonEffect(e);
+    setPage((prev) => Math.max(prev - 1, 1));
+  };
+
+  const handleNextPage = (e) => {
+    handleButtonEffect(e);
+    setPage((prev) => prev + 1);
+  };
+
+  const handleClickPage = (e, page) => {
+    handleButtonEffect(e);
+    setPage(page);
+  };
+
   return (
     <Container>
       <PageNumberList>
         <li>
-          <PageButton disabled onClick={(e) => handleButtonEffect(e)}>
+          <PageButton disabled={page === 1} onClick={handlePrevPage}>
             <MdOutlineKeyboardArrowLeft />
           </PageButton>
         </li>
+        {[...Array(pageNumber).keys()].map((number) => (
+          <li key={number}>
+            <PageButton
+              active={page === number + 1}
+              onClick={(e) => handleClickPage(e, number + 1)}
+            >
+              {number + 1}
+            </PageButton>
+          </li>
+        ))}
+
         <li>
-          <PageButton active onClick={(e) => handleButtonEffect(e)}>
-            1
-          </PageButton>
-        </li>
-        <li>
-          <PageButton onClick={(e) => handleButtonEffect(e)}>2</PageButton>
-        </li>
-        <li>
-          <PageButton onClick={(e) => handleButtonEffect(e)}>
+          <PageButton disabled={page === 2} onClick={handleNextPage}>
             <MdOutlineKeyboardArrowRight />
           </PageButton>
         </li>

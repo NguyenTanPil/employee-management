@@ -21,7 +21,7 @@
       "age": 12,
       "startDay": "2022-06-14",
       "sex": "male",
-      "deleted": true,
+      "deleted": false,
       "moneyPerHour": 7
     },
     {
@@ -56,35 +56,101 @@
       "address": "Ha Noi",
       "age": 12,
       "startDay": "2022-06-14",
-      "sex": "male",
+      "sex": "female",
       "deleted": false,
       "moneyPerHour": 2
     },
     {
       "id": "6",
-      "deleted": false,
-      "team": "manager",
+      "deleted": true,
+      "team": "IT Support",
       "fullName": "Tan Pil",
+      "address": "Kien Giang",
+      "age": 6,
+      "sex": "male",
+      "startDay": "2022-06-14",
+      "moneyPerHour": 2,
+      "phoneNumber": "0277647586"
+    },
+    {
+      "id": "7",
+      "deleted": false,
+      "team": "Test",
+      "fullName": "Hong Nhu",
       "address": "Kien Giang",
       "age": 2,
       "sex": "male",
       "startDay": "2022-06-14",
       "moneyPerHour": 4,
-      "phoneNumber": "0989898989"
+      "phoneNumber": "0989898980"
     }
   ],
   "teams": [
     {
-      "id": 1,
+      "id": "1",
       "teamName": "Manager"
     },
     {
-      "id": 2,
+      "id": "2",
       "teamName": "IT Support"
     },
     {
-      "id": 3,
+      "id": "3",
       "teamName": "QA"
+    },
+    {
+      "id": "4",
+      "teamName": "Dev"
+    },
+    {
+      "id": "5",
+      "teamName": "Test"
+    }
+  ],
+  "working": [
+    {
+      "id": "1",
+      "employeeId": "1",
+      "date": "2022-06-14",
+      "hours": 8,
+      "deleted": true
+    },
+    {
+      "id": "2",
+      "employeeId": "2",
+      "date": "2022-06-14",
+      "hours": 10,
+      "deleted": false
+    },
+    {
+      "id": "21",
+      "employeeId": "1",
+      "deleted": true,
+      "date": "2022-06-14",
+      "hours": 1
+    },
+    {
+      "id": "22",
+      "employeeId": "1",
+      "deleted": false,
+      "date": "2022-06-14",
+      "hours": 4
+    }
+  ],
+  "advances": [
+    {
+      "id": "1",
+      "employeeId": "1",
+      "date": "2022-06-14",
+      "money": 8,
+      "deleted": false
+    },
+    {
+      "id": "2",
+      "employeeId": "1",
+      "date": "2022-06-14",
+      "money": 10,
+      "deleted": false
     }
   ]
 }

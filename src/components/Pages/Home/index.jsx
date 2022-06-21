@@ -7,10 +7,11 @@ import { IconButton, IconLinkButton } from '../../../common/Button';
 import { CheckBox } from '../../../common/Input';
 import { Table, TRow, TRowItem } from '../../../common/Table';
 import {
-  addNewEmployee,
+  createNewEmployee,
   deleteEmployee,
   fetchEmployeeData,
-} from '../../../utils/fetching';
+} from '../../../utils/employeeApi';
+import { fetchTeamData } from '../../../utils/teamApi';
 import AddEmployeeForm from '../../AddEmployeeForm';
 import AddModal from '../../AddModal';
 import AlertDeleteModal from '../../AlertDeleteModal';
@@ -29,95 +30,93 @@ import {
   SideTitle,
 } from './EmployeeListStyles';
 
-const employeeData = [
-  {
-    no: '1',
-    fullName: 'Tran Thi Huong',
-    phoneNumber: '123456789',
-    team: 'Manager',
-    address: 'Ha Noi',
-    age: 12,
-    startDay: '2022-06-14',
-    sex: 'male',
-    deleted: false,
-    moneyPerHour: 0,
-  },
-  {
-    no: '2',
-    fullName: 'Vo Chi Thanh',
-    phoneNumber: '123456789',
-    team: 'IT Support',
-    address: 'Ha Noi',
-    age: 12,
-    startDay: '2022-06-14',
-    sex: 'male',
-    deleted: false,
-    moneyPerHour: 0,
-  },
-  {
-    no: '3',
-    fullName: 'Tran Van Long',
-    phoneNumber: '123456789',
-    team: 'Engineer',
-    address: 'Ha Noi',
-    age: 12,
-    startDay: '2022-06-14',
-    sex: 'male',
-    deleted: false,
-    moneyPerHour: 0,
-  },
-  {
-    no: '4',
-    fullName: 'Tran Thi Manh Huong',
-    phoneNumber: '123456789',
-    team: 'Manager',
-    address: 'Ha Noi',
-    age: 12,
-    startDay: '2022-06-14',
-    sex: 'male',
-    deleted: false,
-    moneyPerHour: 0,
-  },
-  {
-    no: '5',
-    fullName: 'Vo Thi Mai Phong',
-    phoneNumber: '123456789',
-    team: 'Engineer',
-    address: 'Ha Noi',
-    age: 12,
-    startDay: '2022-06-14',
-    sex: 'male',
-    deleted: false,
-    moneyPerHour: 0,
-  },
-];
+const PAGE_LIMIT = 3;
 
 const createCheckedList = (employeeData) => {
   const list = [
     {
-      id: 0,
+      id: '0',
       status: false,
     },
   ];
+
   for (let i = 0; i < employeeData.length; i++) {
-    list.push({
-      id: employeeData[i].id || 0,
-      status: false,
-    });
+    if (!employeeData[i].deleted) {
+      list.push({
+        id: employeeData[i].id || '0',
+        status: false,
+      });
+    }
   }
+
   return list;
+};
+
+const findCheckListElementById = (checkedList, id) => {
+  return checkedList.find((element) => element.id === id) || { status: false };
+};
+
+const handleSelectButton = (checkedList, idx) => {
+  let newCheckedList;
+
+  if (idx === '0') {
+    const checkAllStatus = !checkedList[0].status;
+    newCheckedList = checkedList.map((item) => ({
+      ...item,
+      status: checkAllStatus,
+    }));
+  } else {
+    newCheckedList = checkedList.map((item) => {
+      if (item.id === idx) {
+        return {
+          ...item,
+          status: !item.status,
+        };
+      } else {
+        return item;
+      }
+    });
+
+    if (findCheckListElementById(checkedList, idx).status) {
+      newCheckedList[0].status = false;
+    } else {
+      const checkAllStatus = newCheckedList
+        .slice(1)
+        .every((item) => item.status);
+      newCheckedList[0].status = checkAllStatus;
+    }
+  }
+
+  return newCheckedList;
 };
 
 const Home = () => {
   const queryClient = useQueryClient();
+
   // states
+  const [page, setPage] = useState(1);
   const {
     data: employeeList,
-    isLoading,
+    isLoading: isEmployeeListLoading,
     error,
-  } = useQuery('getEmployeeData', fetchEmployeeData);
-  const [checkedList, setCheckedList] = useState();
+    isPreviousData: isPreviousEmployeeList,
+  } = useQuery(
+    ['getEmployeeData', page + ''],
+    () =>
+      fetchEmployeeData({
+        pageParam: page,
+        limit: PAGE_LIMIT,
+      }),
+    {
+      keepPreviousData: true,
+    }
+  );
 
+  const { data: teamList, isLoading: isTeamListLoading } = useQuery(
+    'getTeamData',
+    fetchTeamData
+  );
+  const [checkedList, setCheckedList] = useState();
   const [isShowAddModal, setIsShowAddModal] = useState(false);
   const [isShowDeleteAllModal, setIsShowDeleteAllModal] = useState(false);
   const [isShowDeleteModal, setIsShowDeleteModal] = useState(false);
@@ -125,7 +124,7 @@ const Home = () => {
   const formikRef = useRef();
 
   // functions
-  const { mutate: addNewEmployeeMutate } = useMutation(addNewEmployee, {
+  const { mutate: addNewEmployeeMutate } = useMutation(createNewEmployee, {
     onSuccess(newEmployee) {
       // update check list
       setCheckedList(createCheckedList([...employeeList, newEmployee]));
@@ -139,63 +138,30 @@ const Home = () => {
 
   const { mutate: deleteEmployeeMutate } = useMutation(deleteEmployee, {
     onSuccess(deletedEmployee) {
-      // update check list
-      setCheckedList((prev) =>
-        prev.filter((item) => item.id === deletedEmployee.id)
-      );
       // update data
       queryClient.setQueryData('getEmployeeData', (prev) =>
-        prev.filter((item) => item.id === deletedEmployee.id)
+        prev.filter((item) => item.id !== deletedEmployee.id)
       );
     },
   });
 
   const handleChecked = (idx) => {
-    let newCheckedList;
-
-    if (idx === 0) {
-      const checkAllStatus = !checkedList[0].status;
-      newCheckedList = checkedList.map((item) => ({
-        ...item,
-        status: checkAllStatus,
-      }));
-    } else {
-      newCheckedList = [...checkedList];
-      newCheckedList[idx].status = !newCheckedList[idx].status;
-
-      if (checkedList[idx]) {
-        newCheckedList[0].status = false;
-      } else {
-        const checkAllStatus = newCheckedList
-          .slice(1)
-          .every((item) => item.status);
-        newCheckedList[0].status = checkAllStatus;
-      }
-    }
-
+    const newCheckedList = handleSelectButton(checkedList, idx);
     setCheckedList(newCheckedList);
   };
 
   const handleDeleteAllSelected = (idx) => {
-    const newData = employeeList.map((item) => ({
-      ...item,
-      deleted:
-        checkedList[item.id].status || item.no === idx ? true : item.deleted,
-    }));
-    console.log(idx);
     if (idx) {
       deleteEmployeeMutate(idx);
     } else {
       console.log('deleted all');
     }
-    // setData(newData);
     setDeleteIdx(0);
-    setCheckedList(createCheckedList(newData));
   };
 
   const handleAddNewEmployee = (values) => {
     const newEmployee = {
-      id: employeeList.length + 1 + '',
+      id: employeeList.data + 1 + '',
       deleted: false,
       team: 'manager',
       ...values,
@@ -217,12 +183,12 @@ const Home = () => {
   useEffect(() => {
     if (employeeList) {
       setCheckedList(
-        createCheckedList(employeeList.filter((item) => !item.deleted))
+        createCheckedList(employeeList?.data.filter((item) => !item.deleted))
       );
     }
   }, [employeeList]);
 
-  if (isLoading || !checkedList) {
+  if (isEmployeeListLoading || !checkedList || isTeamListLoading) {
     return <LoadingSpinner />;
   }
 
@@ -239,6 +205,7 @@ const Home = () => {
           Form={
             <AddEmployeeForm
               ref={formikRef}
+              teams={teamList}
               handleShowModal={setIsShowAddModal}
               handleAddNewEmployee={handleAddNewEmployee}
             />
@@ -294,7 +261,7 @@ const Home = () => {
       </SideSearch>
       <SideEmployeeList>
         <h4>Search Result</h4>
-        {employeeList.filter((item) => !item.deleted).length === 0 ? (
+        {employeeList.data.filter((item) => !item.deleted).length === 0 ? (
           <NoneSpinner text="Don't have any employee" />
         ) : (
           <Table type="secondary" widthCols={[10, 10, 25, 15, 20, 20]}>
@@ -302,7 +269,7 @@ const Home = () => {
               <TRowItem>
                 <CheckBox
                   active={checkedList[0].status}
-                  onClick={() => handleChecked(0)}
+                  onClick={() => handleChecked('0')}
                 />
               </TRowItem>
               <TRowItem>No</TRowItem>
@@ -312,43 +279,44 @@ const Home = () => {
               <TRowItem>Options</TRowItem>
             </TRow>
 
-            {employeeList.map((employee, idx) =>
-              employee.deleted ? null : (
-                <TRow key={employee.id}>
-                  <TRowItem>
-                    {console.log(employee)}
-                    {console.log(checkedList[idx + 1])}
-                    <CheckBox
-                      active={checkedList[idx + 1].status}
-                      onClick={() => handleChecked(idx + 1)}
-                    />
-                  </TRowItem>
-                  <TRowItem data-label="No">{employee.id}</TRowItem>
-                  <TRowItem data-label="FullName">{employee.fullName}</TRowItem>
-                  <TRowItem data-label="Phone">{employee.phoneNumber}</TRowItem>
-                  <TRowItem data-label="Team">{employee.team}</TRowItem>
-                  <TRowItem data-label="Options">
-                    <Options>
-                      <IconLinkButton to={`/employee/${employee.id}`}>
-                        <TbListDetails />
-                      </IconLinkButton>
-                      <IconButton
-                        danger
-                        onClick={() =>
-                          handleShowDeleteEmployeeModal(employee.id)
-                        }
-                      >
-                        <CgTrash />
-                      </IconButton>
-                    </Options>
-                  </TRowItem>
-                </TRow>
-              )
-            )}
+            {employeeList.data.map((employee) => (
+              <TRow key={employee.id}>
+                <TRowItem>
+                  <CheckBox
+                    active={
+                      findCheckListElementById(checkedList, employee.id).status
+                    }
+                    onClick={() => handleChecked(employee.id)}
+                  />
+                </TRowItem>
+                <TRowItem data-label="No">{employee.id}</TRowItem>
+                <TRowItem data-label="FullName">{employee.fullName}</TRowItem>
+                <TRowItem data-label="Phone">{employee.phoneNumber}</TRowItem>
+                <TRowItem data-label="Team">{employee.team}</TRowItem>
+                <TRowItem data-label="Options">
+                  <Options>
+                    <IconLinkButton to={`/employee/${page}/${employee.id}`}>
+                      <TbListDetails />
+                    </IconLinkButton>
+                    <IconButton
+                      danger
+                      onClick={() => handleShowDeleteEmployeeModal(employee.id)}
+                    >
+                      <CgTrash />
+                    </IconButton>
+                  </Options>
+                </TRowItem>
+              </TRow>
+            ))}
           </Table>
         )}
       </SideEmployeeList>
-      <Pagination pageNumber={2} />
+      <Pagination
+        pageNumber={Math.ceil(employeeList.total / PAGE_LIMIT)}
+        page={page}
+        isPreviousData={isPreviousEmployeeList}
+        setPage={setPage}
+      />
     </Container>
   );
 };

@@ -59,7 +59,7 @@ const initValues = {
 };
 
 const AddEmployeeForm = (
-  { initialValues = initValues, handleShowModal, handleAddNewEmployee },
+  { initialValues = initValues, handleShowModal, handleAddNewEmployee, teams },
   ref
 ) => {
   const formikRef = useRef();
@@ -69,29 +69,41 @@ const AddEmployeeForm = (
       formikRef.current.resetForm();
     },
   }));
+
   return (
     <>
       <Formik
-        initialValues={initialValues}
+        initialValues={{
+          ...initialValues,
+          team: initialValues.team || teams[0].teamName,
+        }}
         innerRef={formikRef}
         enableReinitialize={true}
         validateOnBlur={true}
         validateOnChange={false}
-        onSubmit={(values) => {
+        onSubmit={(values, { resetForm }) => {
           handleAddNewEmployee(values);
+          resetForm();
         }}
       >
         {({ handleSubmit, resetForm, errors, touched }) => (
           <Form>
-            <FilledInput
-              name="fullName"
-              type="text"
-              placeholder="Full name"
-              errorMessage={
-                errors.fullName && touched.fullName && errors.fullName
-              }
-              validateFn={validate.fullName}
-            />
+            <InputGroup>
+              <FilledInput
+                name="fullName"
+                type="text"
+                placeholder="Full name"
+                errorMessage={
+                  errors.fullName && touched.fullName && errors.fullName
+                }
+                validateFn={validate.fullName}
+              />
+              <Field
+                name="team"
+                optionList={teams.map((item) => item.teamName)}
+                component={SelectInput}
+              />
+            </InputGroup>
             <InputGroup>
               <FilledInput
                 name="address"
@@ -157,7 +169,7 @@ const AddEmployeeForm = (
                 Cancel
               </TextButton>
               <TextButton active onClick={handleSubmit}>
-                {initialValues.no ? 'Update' : 'Add'}
+                {initialValues.id ? 'Update' : 'Add'}
               </TextButton>
             </ModalFooter>
           </Form>

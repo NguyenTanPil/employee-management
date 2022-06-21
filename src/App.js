@@ -33,7 +33,10 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route exact path="/team" element={<Team />} />
             <Route path="/employee" element={<Home />} />
-            <Route path="/employee/:employeeId" element={<EmployeeDetail />} />
+            <Route
+              path="/employee/:page/:employeeId"
+              element={<EmployeeDetail />}
+            />
           </Routes>
         </Router>
       </GirdLayout>

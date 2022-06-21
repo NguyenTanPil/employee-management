@@ -1,40 +1,69 @@
 import { useRef, useState } from 'react';
 import { CgTrash } from 'react-icons/cg';
 import { MdAddCircleOutline } from 'react-icons/md';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { IconButton } from '../../common/Button';
 import { Table, TRow, TRowItem } from '../../common/Table';
 import AddModal from '../AddModal';
 import AddWorkingForm from '../AddWorkingForm';
 import AlertDeleteModal from '../AlertDeleteModal';
 import { Content } from '../InformationContent/InformationContentStyles';
+import LoadingSpinner from '../LoadingSpinner';
 import NoneSpinner from '../NoneSpinner';
 import { Container, ContentTitle } from './WorkingContentStyles';
 
-const WorkingContent = ({ title, data: resourceData, anotherField, name }) => {
+const WorkingContent = ({
+  title,
+  employeeId,
+  anotherField,
+  name,
+  fetchFn,
+  createFn,
+  deleteFn,
+}) => {
+  const queryClient = useQueryClient();
+
+  // state
   const formikRef = useRef();
-  const [data, setData] = useState(resourceData);
   const [isShowAddModal, setIsShowAddModal] = useState(false);
   const [isShowDeleteModal, setIsShowDeleteModal] = useState(false);
   const [deleteIdx, setDeleteIdx] = useState(0);
+  const { data, isLoading, error } = useQuery(`get${title}`, () =>
+    fetchFn(employeeId)
+  );
+
+  // functions
+  const { mutate: createNewItemMutate } = useMutation(createFn, {
+    onSuccess(newItem) {
+      queryClient.setQueryData(`get${title}`, [...data, newItem]);
+    },
+  });
+
+  const { mutate: deleteItemMutate } = useMutation(deleteFn, {
+    onSuccess(deleteItem) {
+      queryClient.setQueryData(`get${title}`, (prev) =>
+        prev.filter((item) => item.id !== deleteItem.id)
+      );
+
+      // reset delete index
+      setDeleteIdx(0);
+    },
+  });
 
   const handleAddNewWorking = (values) => {
-    let newData = [...data];
-    newData.push({
-      no: newData.length + 1,
+    const newItem = {
+      id: data.length + 1 + employeeId,
+      employeeId,
       deleted: false,
       date: values.date,
       [anotherField]: values.salaryPerHour,
-    });
+    };
     handleCloseModal();
-    setData(newData);
+    createNewItemMutate(newItem);
   };
 
   const handleDeleteWorking = (idx) => {
-    const newData = data.map((item) => ({
-      ...item,
-      deleted: item.no === idx ? true : item.deleted,
-    }));
-    setData(newData);
+    deleteItemMutate(idx);
     setIsShowDeleteModal(false);
   };
 
@@ -47,6 +76,14 @@ const WorkingContent = ({ title, data: resourceData, anotherField, name }) => {
     setDeleteIdx(idx);
     setIsShowDeleteModal(true);
   };
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  if (error) {
+    return <div>{error.message}</div>;
+  }
 
   return (
     <Container>
@@ -80,7 +117,7 @@ const WorkingContent = ({ title, data: resourceData, anotherField, name }) => {
       </ContentTitle>
       <Content>
         {data.filter((item) => !item.deleted).length === 0 ? (
-          <NoneSpinner text="Don't have any working" />
+          <NoneSpinner text={`Don't have any ${name}`} />
         ) : (
           <Table type="secondary" widthCols={[10, 30, 30, 30]}>
             <TRow isRowTitle>
@@ -90,27 +127,25 @@ const WorkingContent = ({ title, data: resourceData, anotherField, name }) => {
               <TRowItem>Option</TRowItem>
             </TRow>
 
-            {data.map((item) =>
-              item.deleted ? null : (
-                <TRow key={item.no}>
-                  <TRowItem data-label="No">{item.no}</TRowItem>
-                  <TRowItem data-label="Date">{item.date}</TRowItem>
-                  <TRowItem data-label={anotherField}>
-                    {item[anotherField]}
-                  </TRowItem>
-                  <TRowItem data-label="Option">
-                    <IconButton
-                      danger
-                      pt="0"
-                      pb="0"
-                      onClick={() => handleShowDeleteEmployeeModal(item.no)}
-                    >
-                      <CgTrash />
-                    </IconButton>
-                  </TRowItem>
-                </TRow>
-              )
-            )}
+            {data.map((item) => (
+              <TRow key={item.id}>
+                <TRowItem data-label="No">{item.id}</TRowItem>
+                <TRowItem data-label="Date">{item.date}</TRowItem>
+                <TRowItem data-label={anotherField}>
+                  {item[anotherField]}
+                </TRowItem>
+                <TRowItem data-label="Option">
+                  <IconButton
+                    danger
+                    pt="0"
+                    pb="0"
+                    onClick={() => handleShowDeleteEmployeeModal(item.id)}
+                  >
+                    <CgTrash />
+                  </IconButton>
+                </TRowItem>
+              </TRow>
+            ))}
           </Table>
         )}
       </Content>
