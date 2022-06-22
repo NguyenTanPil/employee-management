@@ -1,21 +1,27 @@
-import { useEffect, useRef, useState } from 'react';
+import debounce from 'lodash.debounce';
+import { useEffect, useMemo, useState } from 'react';
 import { CgTrash } from 'react-icons/cg';
 import { RiAddLine } from 'react-icons/ri';
 import { TbListDetails } from 'react-icons/tb';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { useMutation } from 'react-query';
+import { createNewEmployee } from '../../../api/employeeApi';
 import { IconButton, IconLinkButton } from '../../../common/Button';
 import { CheckBox } from '../../../common/Input';
 import { Table, TRow, TRowItem } from '../../../common/Table';
+import { TextLink } from '../../../common/Text';
 import {
-  createNewEmployee,
-  deleteEmployee,
-  fetchEmployeeData,
-} from '../../../utils/employeeApi';
-import { fetchTeamData } from '../../../utils/teamApi';
-import AddEmployeeForm from '../../AddEmployeeForm';
-import AddModal from '../../AddModal';
-import AlertDeleteModal from '../../AlertDeleteModal';
+  createCheckedList,
+  findCheckListElementById,
+  handleSelectButton,
+} from '../../../utils/employee';
+import {
+  useDeleteEmployeeById,
+  useDeleteEmployeeBySelected,
+  useGetEmployeeListBySearchContent,
+} from '../../hooks/employee';
+import { useGetTeamList } from '../../hooks/team';
 import LoadingSpinner from '../../LoadingSpinner';
+import EmployeeModals from '../../ModalGroup/EmployeeModals';
 import NoneSpinner from '../../NoneSpinner';
 import Pagination from '../../Pagination';
 import SearchBar from '../../SearchBar';
@@ -32,118 +38,34 @@ import {
 
 const PAGE_LIMIT = 3;
 
-const createCheckedList = (employeeData) => {
-  const list = [
-    {
-      id: '0',
-      status: false,
-    },
-  ];
-
-  for (let i = 0; i < employeeData.length; i++) {
-    if (!employeeData[i].deleted) {
-      list.push({
-        id: employeeData[i].id || '0',
-        status: false,
-      });
-    }
-  }
-
-  return list;
-};
-
-const findCheckListElementById = (checkedList, id) => {
-  return checkedList.find((element) => element.id === id) || { status: false };
-};
-
-const handleSelectButton = (checkedList, idx) => {
-  let newCheckedList;
-
-  if (idx === '0') {
-    const checkAllStatus = !checkedList[0].status;
-    newCheckedList = checkedList.map((item) => ({
-      ...item,
-      status: checkAllStatus,
-    }));
-  } else {
-    newCheckedList = checkedList.map((item) => {
-      if (item.id === idx) {
-        return {
-          ...item,
-          status: !item.status,
-        };
-      } else {
-        return item;
-      }
-    });
-
-    if (findCheckListElementById(checkedList, idx).status) {
-      newCheckedList[0].status = false;
-    } else {
-      const checkAllStatus = newCheckedList
-        .slice(1)
-        .every((item) => item.status);
-      newCheckedList[0].status = checkAllStatus;
-    }
-  }
-
-  return newCheckedList;
-};
-
 const Home = () => {
-  const queryClient = useQueryClient();
-
   // states
   const [page, setPage] = useState(1);
-  const {
-    data: employeeList,
-    isLoading: isEmployeeListLoading,
-    error,
-    isPreviousData: isPreviousEmployeeList,
-  } = useQuery(
-    ['getEmployeeData', page + ''],
-    () =>
-      fetchEmployeeData({
-        pageParam: page,
-        limit: PAGE_LIMIT,
-      }),
-    {
-      keepPreviousData: true,
-    }
-  );
-
-  const { data: teamList, isLoading: isTeamListLoading } = useQuery(
-    'getTeamData',
-    fetchTeamData
-  );
+  const [searchContent, setSearchContent] = useState('');
   const [checkedList, setCheckedList] = useState();
   const [isShowAddModal, setIsShowAddModal] = useState(false);
   const [isShowDeleteAllModal, setIsShowDeleteAllModal] = useState(false);
   const [isShowDeleteModal, setIsShowDeleteModal] = useState(false);
   const [deleteIdx, setDeleteIdx] = useState(0);
-  const formikRef = useRef();
+
+  const {
+    data: employeeList,
+    isLoading: isEmployeeListLoading,
+    error,
+    isPreviousData: isPreviousEmployeeList,
+  } = useGetEmployeeListBySearchContent({ page, searchContent, PAGE_LIMIT });
+  const { data: teamList, isLoading: isTeamListLoading } = useGetTeamList();
 
   // functions
-  const { mutate: addNewEmployeeMutate } = useMutation(createNewEmployee, {
-    onSuccess(newEmployee) {
-      // update check list
-      setCheckedList(createCheckedList([...employeeList, newEmployee]));
-      // update data
-      queryClient.setQueryData('getEmployeeData', [
-        ...employeeList,
-        newEmployee,
-      ]);
-    },
-  });
+  const { mutate: addNewEmployeeMutate } = useMutation(createNewEmployee);
 
-  const { mutate: deleteEmployeeMutate } = useMutation(deleteEmployee, {
-    onSuccess(deletedEmployee) {
-      // update data
-      queryClient.setQueryData('getEmployeeData', (prev) =>
-        prev.filter((item) => item.id !== deletedEmployee.id)
-      );
-    },
-  });
+  const { mutate: deleteEmployeeMutate } = useDeleteEmployeeById(
+    page,
+    searchContent
+  );
+
+  const { mutate: deleteEmployeeBySelectedMutate } =
+    useDeleteEmployeeBySelected(page, searchContent);
 
   const handleChecked = (idx) => {
     const newCheckedList = handleSelectButton(checkedList, idx);
@@ -154,16 +76,18 @@ const Home = () => {
     if (idx) {
       deleteEmployeeMutate(idx);
     } else {
-      console.log('deleted all');
+      const employeeIdList = checkedList
+        .filter((item) => item.id && item.status)
+        .map((item) => item.id);
+      deleteEmployeeBySelectedMutate(employeeIdList);
     }
     setDeleteIdx(0);
   };
 
   const handleAddNewEmployee = (values) => {
     const newEmployee = {
-      id: employeeList.data + 1 + '',
+      id: parseInt(employeeList.total) + 1 + '',
       deleted: false,
-      team: 'manager',
       ...values,
     };
     setIsShowAddModal(false);
@@ -175,10 +99,14 @@ const Home = () => {
     setIsShowDeleteModal(true);
   };
 
-  const handleCloseModal = () => {
-    setIsShowAddModal(false);
-    formikRef.current.resetFormik();
+  const handleChangeSearchInput = (e) => {
+    setSearchContent(e.target.value);
   };
+
+  const handleChangeSearchContent = useMemo(
+    () => debounce(handleChangeSearchInput, 300),
+    []
+  );
 
   useEffect(() => {
     if (employeeList) {
@@ -199,42 +127,20 @@ const Home = () => {
   return (
     <Container>
       <SideTitle>
-        {/* Modal */}
-
-        <AddModal
-          Form={
-            <AddEmployeeForm
-              ref={formikRef}
-              teams={teamList}
-              handleShowModal={setIsShowAddModal}
-              handleAddNewEmployee={handleAddNewEmployee}
-            />
-          }
-          title="Add new Employee"
-          isShowModal={isShowAddModal}
-          handleCloseModal={handleCloseModal}
-        />
-
-        <AlertDeleteModal
-          title="Are you sure to delete all employee selected?"
-          message="Will delete all data employee selected!"
-          isShowModal={isShowDeleteAllModal}
-          handleShowModal={setIsShowDeleteAllModal}
-          handleDeleteAllSelected={handleDeleteAllSelected}
-        />
-
-        <AlertDeleteModal
+        <EmployeeModals
           deleteIdx={deleteIdx}
-          title="Are you sure to delete this employee?"
-          message="Will delete this employee!"
-          isShowModal={isShowDeleteModal}
-          handleShowModal={setIsShowDeleteModal}
+          teamList={teamList}
+          isShowAddModal={isShowAddModal}
+          isShowDeleteAllModal={isShowDeleteAllModal}
+          isShowDeleteModal={isShowDeleteModal}
+          setIsShowAddModal={setIsShowAddModal}
+          handleAddNewEmployee={handleAddNewEmployee}
+          setIsShowDeleteAllModal={setIsShowDeleteAllModal}
           handleDeleteAllSelected={handleDeleteAllSelected}
+          setIsShowDeleteModal={setIsShowDeleteModal}
         />
-        {/* Modal */}
 
         <h3>Employee</h3>
-
         <EmployeeControl>
           <EmployeeControlItem>
             <IconButton active onClick={() => setIsShowAddModal(true)}>
@@ -255,9 +161,12 @@ const Home = () => {
       </SideTitle>
       <SideSearch>
         <EmployeeTotal>
-          <h3>Total: {employeeList.length}</h3>
+          <h3>Total: {employeeList.total}</h3>
         </EmployeeTotal>
-        <SearchBar placeholder="Search employee by name..." />
+        <SearchBar
+          placeholder="Search employee by name..."
+          handleChange={handleChangeSearchContent}
+        />
       </SideSearch>
       <SideEmployeeList>
         <h4>Search Result</h4>
@@ -279,7 +188,7 @@ const Home = () => {
               <TRowItem>Options</TRowItem>
             </TRow>
 
-            {employeeList.data.map((employee) => (
+            {employeeList.data.map((employee, idx) => (
               <TRow key={employee.id}>
                 <TRowItem>
                   <CheckBox
@@ -289,10 +198,18 @@ const Home = () => {
                     onClick={() => handleChecked(employee.id)}
                   />
                 </TRowItem>
-                <TRowItem data-label="No">{employee.id}</TRowItem>
-                <TRowItem data-label="FullName">{employee.fullName}</TRowItem>
+                <TRowItem data-label="No">{idx + 1}</TRowItem>
+                <TRowItem data-label="FullName">
+                  <TextLink to={`/employee/${page}/${employee.id}`}>
+                    {employee.fullName}
+                  </TextLink>
+                </TRowItem>
                 <TRowItem data-label="Phone">{employee.phoneNumber}</TRowItem>
-                <TRowItem data-label="Team">{employee.team}</TRowItem>
+                <TRowItem data-label="Team">
+                  <TextLink to={`/team/${employee.team}`}>
+                    {employee.team}
+                  </TextLink>
+                </TRowItem>
                 <TRowItem data-label="Options">
                   <Options>
                     <IconLinkButton to={`/employee/${page}/${employee.id}`}>
@@ -311,6 +228,7 @@ const Home = () => {
           </Table>
         )}
       </SideEmployeeList>
+
       <Pagination
         pageNumber={Math.ceil(employeeList.total / PAGE_LIMIT)}
         page={page}

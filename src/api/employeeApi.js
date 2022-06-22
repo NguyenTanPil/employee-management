@@ -1,7 +1,11 @@
 // GET all employee
-export const fetchEmployeeData = async ({ pageParam = 1, limit = 3 }) => {
+export const fetchEmployeeData = async ({
+  pageParam = 1,
+  limit = 3,
+  searchContent = '',
+}) => {
   const res = await fetch(
-    `http://localhost:4000/employees?_page=${pageParam}&_limit=${limit}&deleted=false`
+    `http://localhost:4000/employees?q=${searchContent}&_page=${pageParam}&_limit=${limit}&deleted=false`
   );
 
   if (!res.ok) {
@@ -17,9 +21,9 @@ export const fetchEmployeeData = async ({ pageParam = 1, limit = 3 }) => {
 };
 
 // GET employee by team id
-export const fetchEmployeeByTeamId = async ({ queryKey }) => {
+export const fetchEmployeeByTeamId = async (teamName) => {
   const res = await fetch(
-    `http://localhost:4000/employees?team=${queryKey[1]}`
+    `http://localhost:4000/employees?team=${teamName}&delete=false`
   );
 
   if (!res.ok) {
@@ -30,8 +34,8 @@ export const fetchEmployeeByTeamId = async ({ queryKey }) => {
 };
 
 // GET employee by id
-export const fetchEmployeeById = async ({ queryKey }) => {
-  const res = await fetch(`http://localhost:4000/employees/${queryKey[1]}`);
+export const fetchEmployeeById = async (employeeId) => {
+  const res = await fetch(`http://localhost:4000/employees/${employeeId}`);
 
   if (!res.ok) {
     throw new Error(res.statusText);
@@ -91,4 +95,14 @@ export const updateEmployee = async (employee) => {
   }
 
   return res.json();
+};
+
+// PATCH update many employee by employee id list
+export const deleteEmployeeBySelected = async (employeeIdList) => {
+  const promiseList = employeeIdList.map((employeeId) =>
+    deleteEmployee(employeeId)
+  );
+  const deleteList = await Promise.all(promiseList);
+
+  return deleteList.map((item) => item.id);
 };

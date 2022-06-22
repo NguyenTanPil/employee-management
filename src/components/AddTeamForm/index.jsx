@@ -37,6 +37,7 @@ const AddTeamForm = (
         validateOnChange={false}
         onSubmit={(values) => {
           handleAddNewEmployee(values);
+          handleShowModal(false);
         }}
       >
         {({ handleSubmit, resetForm, errors, touched }) => (

@@ -1,14 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { RiAddLine } from 'react-icons/ri';
 import { TbListDetails } from 'react-icons/tb';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { IconButton } from '../../../common/Button';
 import { Table, TRow, TRowItem } from '../../../common/Table';
-import { fetchEmployeeByTeamId } from '../../../utils/employeeApi';
-import { createNewTeam, fetchTeamData } from '../../../utils/teamApi';
-import AddModal from '../../AddModal';
-import AddTeamForm from '../../AddTeamForm';
+import { TextCursorActive, TextLink } from '../../../common/Text';
+import { useGetEmployeeListByTeamName } from '../../hooks/employee';
+import { useCreateNewTeam, useGetTeamList } from '../../hooks/team';
 import LoadingSpinner from '../../LoadingSpinner';
+import TeamModals from '../../ModalGroup/TeamModals';
 import NoneSpinner from '../../NoneSpinner';
 import {
   Container,
@@ -19,45 +18,31 @@ import {
 import { EmployeeTable, SideTeam, TableCaption, TeamTable } from './TeamStyles';
 
 const Team = () => {
-  const queryClient = useQueryClient();
-
   // state
+  const [teamName, setTeamName] = useState('');
+  const [isShowAddModal, setIsShowAddModal] = useState(false);
+
   const {
     data: teamList,
     isLoading: isTeamListLoading,
     error: teamListError,
-  } = useQuery('getTeamData', fetchTeamData);
-
-  const [teamName, setTeamName] = useState();
-  const [isShowAddModal, setIsShowAddModal] = useState(false);
-  const formikRef = useRef();
+  } = useGetTeamList();
 
   const {
     data: employeeList,
     isLoading: isEmployeeListLoading,
     isIdle: isEmployeeListIdle,
-  } = useQuery(['getEmployeeByFilter', teamName], fetchEmployeeByTeamId, {
-    enabled: !!teamName,
-  });
+  } = useGetEmployeeListByTeamName(teamName);
 
   // functions
-  const { mutate: createNewTeamMutate } = useMutation(createNewTeam, {
-    onSuccess(newTeam) {
-      queryClient.setQueryData('getTeamData', [...teamList, newTeam]);
-    },
-  });
-
-  const handleCloseModal = () => {
-    setIsShowAddModal(false);
-    formikRef.current.resetFormik();
-  };
+  const { mutate: createNewTeamMutate } = useCreateNewTeam();
 
   const handleAddNewTeam = (values) => {
     const newTeam = {
       id: teamList.length + 1 + '',
       ...values,
     };
-    handleCloseModal(false);
+
     createNewTeamMutate(newTeam);
   };
 
@@ -77,17 +62,10 @@ const Team = () => {
 
   return (
     <Container>
-      <AddModal
-        title={`Add new Team`}
-        Form={
-          <AddTeamForm
-            ref={formikRef}
-            handleShowModal={setIsShowAddModal}
-            handleAddNewEmployee={handleAddNewTeam}
-          />
-        }
-        isShowModal={isShowAddModal}
-        handleCloseModal={handleCloseModal}
+      <TeamModals
+        isShowAddModal={isShowAddModal}
+        setIsShowAddModal={setIsShowAddModal}
+        handleAddNewTeam={handleAddNewTeam}
       />
 
       <SideTitle>
@@ -102,7 +80,9 @@ const Team = () => {
       </SideTitle>
       <SideTeam>
         <TeamTable>
-          <TableCaption>Total {teamList.length} teams</TableCaption>
+          <TableCaption>
+            Total {teamList.length} {teamList.length > 1 ? 'teams' : 'team'}
+          </TableCaption>
           <Table type="secondary" widthCols={[20, 50, 30]}>
             <TRow isRowTitle>
               <TRowItem>No</TRowItem>
@@ -111,8 +91,19 @@ const Team = () => {
             </TRow>
             {teamList.map((item, idx) => (
               <TRow key={item.id}>
-                <TRowItem data-label="No">{idx + 1}</TRowItem>
-                <TRowItem data-label="Team Name">{item.teamName}</TRowItem>
+                <TRowItem data-label="No">
+                  <TextCursorActive active={item.teamName === teamName}>
+                    {idx + 1}
+                  </TextCursorActive>
+                </TRowItem>
+                <TRowItem data-label="Team Name">
+                  <TextCursorActive
+                    active={item.teamName === teamName}
+                    onClick={() => setTeamName(item.teamName)}
+                  >
+                    {item.teamName}
+                  </TextCursorActive>
+                </TRowItem>
                 <TRowItem data-label="Detail">
                   <IconButton
                     pt="0"
@@ -127,14 +118,14 @@ const Team = () => {
           </Table>
         </TeamTable>
 
-        <EmployeeTable pt={employeeList.length === 0 ? '4rem' : '0'}>
+        <EmployeeTable pt={employeeList.length === 0 ? '4' : '0'}>
           {employeeList.length === 0 ? (
             <NoneSpinner text={`Don't have ${teamName}' employees`} />
           ) : (
             <>
               <TableCaption>
-                Result all employee team <span>{teamName}</span> - Total{' '}
-                {employeeList.length} employees
+                Total {employeeList.length}{' '}
+                {employeeList.length > 1 ? 'employees' : 'employee'}
               </TableCaption>
               <Table type="secondary" widthCols={[10, 35, 20, 20, 15]}>
                 <TRow isRowTitle>
@@ -144,10 +135,14 @@ const Team = () => {
                   <TRowItem>Address</TRowItem>
                   <TRowItem>Sex</TRowItem>
                 </TRow>
-                {employeeList.map((item) => (
+                {employeeList.map((item, idx) => (
                   <TRow key={item.id}>
-                    <TRowItem data-label="No">{item.id}</TRowItem>
-                    <TRowItem data-label="FullName">{item.fullName}</TRowItem>
+                    <TRowItem data-label="No">{idx + 1}</TRowItem>
+                    <TRowItem data-label="FullName">
+                      <TextLink to={`/employee/1/${item.id}`}>
+                        {item.fullName}
+                      </TextLink>
+                    </TRowItem>
                     <TRowItem data-label="Phone">{item.phoneNumber}</TRowItem>
                     <TRowItem data-label="Address">{item.address}</TRowItem>
                     <TRowItem data-label="Sex">{item.sex}</TRowItem>

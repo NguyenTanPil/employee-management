@@ -8,21 +8,23 @@
       "address": "Ha Noi",
       "age": 12,
       "startDay": "2022-06-14",
-      "sex": "male",
-      "deleted": false,
-      "moneyPerHour": 0
+      "sex": "female",
+      "deleted": true,
+      "moneyPerHour": 4,
+      "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8YXZhdGFyfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60"
     },
     {
       "id": "2",
       "fullName": "Vo Chi Thanh",
       "phoneNumber": "00123456789",
-      "team": "IT Support",
+      "team": "Dev",
       "address": "Ha Noi",
-      "age": 12,
+      "age": 14,
       "startDay": "2022-06-14",
       "sex": "male",
       "deleted": false,
-      "moneyPerHour": 7
+      "moneyPerHour": 7,
+      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8YXZhdGFyfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60"
     },
     {
       "id": "3",
@@ -34,7 +36,8 @@
       "startDay": "2022-06-14",
       "sex": "male",
       "deleted": false,
-      "moneyPerHour": 6
+      "moneyPerHour": 6,
+      "avatar": "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8YXZhdGFyfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60"
     },
     {
       "id": "4",
@@ -44,9 +47,10 @@
       "address": "Ha Noi",
       "age": 12,
       "startDay": "2022-06-14",
-      "sex": "male",
+      "sex": "female",
       "deleted": false,
-      "moneyPerHour": 1
+      "moneyPerHour": 1,
+      "avatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8N3x8YXZhdGFyfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60"
     },
     {
       "id": "5",
@@ -58,31 +62,60 @@
       "startDay": "2022-06-14",
       "sex": "female",
       "deleted": false,
-      "moneyPerHour": 2
+      "moneyPerHour": 2,
+      "avatar": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTB8fGF2YXRhcnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60"
     },
     {
       "id": "6",
-      "deleted": true,
+      "deleted": false,
       "team": "IT Support",
-      "fullName": "Tan Pil",
+      "fullName": "Nguyen Tan Pil",
       "address": "Kien Giang",
       "age": 6,
       "sex": "male",
       "startDay": "2022-06-14",
       "moneyPerHour": 2,
-      "phoneNumber": "0277647586"
+      "phoneNumber": "0277647586",
+      "avatar": "https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8OHx8YXZhdGFyfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60"
     },
     {
       "id": "7",
       "deleted": false,
-      "team": "Test",
-      "fullName": "Hong Nhu",
+      "team": "Tester",
+      "fullName": "Tran Hong Nhu",
       "address": "Kien Giang",
       "age": 2,
-      "sex": "male",
+      "sex": "female",
       "startDay": "2022-06-14",
       "moneyPerHour": 4,
-      "phoneNumber": "0989898980"
+      "phoneNumber": "0989898980",
+      "avatar": "https://images.unsplash.com/photo-1628890923662-2cb23c2e0cfe?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTJ8fGF2YXRhcnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60"
+    },
+    {
+      "id": "8",
+      "deleted": false,
+      "fullName": "Tran Thi Thu Ngan",
+      "address": "Can Tho",
+      "age": 3,
+      "sex": "female",
+      "startDay": "2022-06-14",
+      "moneyPerHour": 3,
+      "phoneNumber": "08975756436",
+      "team": "Manager",
+      "avatar": "https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTZ8fGF2YXRhcnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60"
+    },
+    {
+      "id": "9",
+      "deleted": false,
+      "fullName": "Doan Thi Kim Tuyen",
+      "address": "Kien Giang",
+      "age": 4,
+      "sex": "female",
+      "startDay": "2022-01-14",
+      "moneyPerHour": 5,
+      "phoneNumber": "0846856489",
+      "team": "Dev",
+      "avatar": "https://images.unsplash.com/photo-1569913486515-b74bf7751574?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MjV8fGF2YXRhcnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60"
     }
   ],
   "teams": [
@@ -104,7 +137,7 @@
     },
     {
       "id": "5",
-      "teamName": "Test"
+      "teamName": "Tester"
     }
   ],
   "working": [
@@ -130,11 +163,25 @@
       "hours": 1
     },
     {
-      "id": "22",
+      "id": "23",
       "employeeId": "1",
       "deleted": false,
       "date": "2022-06-14",
       "hours": 4
+    },
+    {
+      "id": "22",
+      "employeeId": "2",
+      "deleted": false,
+      "date": "2022-06-14",
+      "hours": 3
+    },
+    {
+      "id": "32",
+      "employeeId": "2",
+      "deleted": false,
+      "date": "2022-06-14",
+      "hours": 3
     }
   ],
   "advances": [
@@ -151,6 +198,15 @@
       "date": "2022-06-14",
       "money": 10,
       "deleted": false
+    }
+  ],
+  "statistics": [
+    {
+      "id": "21",
+      "employeeId": "2",
+      "deleted": false,
+      "date": "2022-06-14",
+      "money": 4
     }
   ]
 }

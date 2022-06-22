@@ -23,7 +23,7 @@ export const TeamTable = styled.div`
 export const EmployeeTable = styled.div`
   display: flex;
   flex-direction: column;
-  padding-top: ${(props) => props.pt};
+  padding-top: ${(props) => props.pt + 'rem'};
   width: 100%;
 
   @media only screen and (min-width: 768px) {

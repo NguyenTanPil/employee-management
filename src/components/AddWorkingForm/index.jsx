@@ -37,8 +37,9 @@ const AddWorkingForm = (
         enableReinitialize={true}
         validateOnBlur={true}
         validateOnChange={false}
-        onSubmit={(values) => {
+        onSubmit={(values, { resetForm }) => {
           handleAddNewEmployee(values);
+          resetForm();
         }}
       >
         {({ handleSubmit, resetForm, errors, touched }) => (

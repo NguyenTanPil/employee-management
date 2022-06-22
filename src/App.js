@@ -14,7 +14,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      staleTime: 1000 * 60,
+      staleTime: 1000 * 30,
       retry: false,
     },
   },
@@ -32,6 +32,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route exact path="/team" element={<Team />} />
+            <Route exact path="/team:teamName" element={<Team />} />
             <Route path="/employee" element={<Home />} />
             <Route
               path="/employee/:page/:employeeId"

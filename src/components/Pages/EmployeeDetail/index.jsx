@@ -1,30 +1,32 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { BiEditAlt } from 'react-icons/bi';
 import { CgTrash } from 'react-icons/cg';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useNavigate, useParams } from 'react-router-dom';
-import { IconButton, OriginTextButton } from '../../../common/Button';
 import {
   createNewAdvance,
   deleteAdvanceById,
   fetchAdvanceByEmployeeId,
-} from '../../../utils/advanceApi';
+} from '../../../api/advanceApi';
 import {
-  deleteEmployee,
-  fetchEmployeeById,
-  updateEmployee,
-} from '../../../utils/employeeApi';
-import { fetchTeamData } from '../../../utils/teamApi';
+  createNewStatistic,
+  deleteStatisticById,
+  fetchStatisticsByEmployeeId,
+} from '../../../api/statisticsApi';
 import {
   createNewWorking,
   deleteWorkingById,
   fetchWorkingByEmployeeId,
-} from '../../../utils/workingApi';
-import AddEmployeeForm from '../../AddEmployeeForm';
-import AddModal from '../../AddModal';
-import AlertDeleteModal from '../../AlertDeleteModal';
+} from '../../../api/workingApi';
+import { IconButton, OriginTextButton } from '../../../common/Button';
+import { useDeleteEmployeeById } from '../../hooks/employee';
+import {
+  useGetEmployeeById,
+  useUpdateEmployeeById,
+} from '../../hooks/employeeDetail';
+import { useGetTeamList } from '../../hooks/team';
 import InformationContent from '../../InformationContent';
 import LoadingSpinner from '../../LoadingSpinner';
+import EmployeeDetailModals from '../../ModalGroup/EmployeeDetailModals';
 import NavTab from '../../NavTab';
 import WorkingContent from '../../WorkingContent';
 import {
@@ -45,49 +47,23 @@ import {
 
 const EmployeeDetail = () => {
   const { page, employeeId } = useParams();
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
-
-  const { data: employee, isLoading: isEmployeeLoading } = useQuery(
-    ['getEmployee', employeeId],
-    fetchEmployeeById,
-    {
-      enable: !!employeeId && !!page,
-      initialData: () => {
-        return queryClient
-          .getQueryData(['getEmployeeData', page])
-          .data?.find((e) => e.id === employeeId);
-      },
-    }
-  );
-  const { data: teamList, isLoading: isTeamListLoading } = useQuery(
-    'getTeamData',
-    fetchTeamData
-  );
 
   const [activeTab, setActiveTab] = useState(0);
   const [isShowEditModal, setIsShowEditModal] = useState(false);
   const [isShowDeleteModal, setIsShowDeleteModal] = useState(false);
-  const formikRef = useRef();
+
+  const {
+    data: employee,
+    isLoading: isEmployeeLoading,
+    error,
+  } = useGetEmployeeById(employeeId, page);
+  const { data: teamList, isLoading: isTeamListLoading } = useGetTeamList();
 
   // functions
-  const { mutate: updateEmployeeMutate } = useMutation(updateEmployee, {
-    onSuccess(newEmployee) {
-      queryClient.setQueryData(['getEmployee', newEmployee.id], newEmployee);
-    },
-  });
+  const { mutate: updateEmployeeMutate } = useUpdateEmployeeById(page);
 
-  const { mutate: deleteEmployeeMutate } = useMutation(deleteEmployee, {
-    onSuccess(deletedEmployee) {
-      // update data
-      queryClient.setQueryData('getEmployeeData', (prev) =>
-        prev.filter((item) => item.id !== deletedEmployee.id)
-      );
-
-      // redirect to home
-      navigate('/');
-    },
-  });
+  const { mutate: deleteEmployeeMutate } = useDeleteEmployeeById(page);
 
   const handleEditEmployee = (values) => {
     setIsShowEditModal(false);
@@ -96,41 +72,28 @@ const EmployeeDetail = () => {
 
   const handleDeleteEmployee = (idx) => {
     deleteEmployeeMutate(idx);
-  };
-
-  const handleCloseModal = () => {
-    setIsShowEditModal(false);
-    formikRef.current.resetFormik();
+    navigate('/');
   };
 
   if (isEmployeeLoading || isTeamListLoading) {
     return <LoadingSpinner />;
   }
 
+  if (error) {
+    return <div>{error.message}</div>;
+  }
+
   return (
     <Container>
-      <AddModal
-        title="update employee"
-        Form={
-          <AddEmployeeForm
-            ref={formikRef}
-            initialValues={employee}
-            teams={teamList}
-            handleShowModal={setIsShowEditModal}
-            handleAddNewEmployee={handleEditEmployee}
-          />
-        }
-        isShowModal={isShowEditModal}
-        handleCloseModal={handleCloseModal}
-      />
-
-      <AlertDeleteModal
-        deleteIdx={employee.id}
-        title="Are you sure to delete this employee?"
-        message="Will delete this employee!"
-        isShowModal={isShowDeleteModal}
-        handleShowModal={setIsShowDeleteModal}
-        handleDeleteAllSelected={handleDeleteEmployee}
+      <EmployeeDetailModals
+        employee={employee}
+        teamList={teamList}
+        isShowDeleteModal={isShowDeleteModal}
+        isShowEditModal={isShowEditModal}
+        setIsShowEditModal={setIsShowEditModal}
+        setIsShowDeleteModal={setIsShowDeleteModal}
+        handleEditEmployee={handleEditEmployee}
+        handleDeleteEmployee={handleDeleteEmployee}
       />
       <SideTitle>
         <h3>{employee.fullName}</h3>
@@ -155,10 +118,7 @@ const EmployeeDetail = () => {
       <SideNavTab>
         <LeftSide>
           <Avatar>
-            <img
-              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkspTGDaYI0SloxfqGWTJMZYniyE8q9oqahw&usqp=CAU"
-              alt=""
-            />
+            <img src={employee.avatar} alt="" />
           </Avatar>
           <ButtonGroup>
             <OriginTextButton active>No : {employee.id}</OriginTextButton>
@@ -200,6 +160,17 @@ const EmployeeDetail = () => {
                 fetchFn={fetchAdvanceByEmployeeId}
                 createFn={createNewAdvance}
                 deleteFn={deleteAdvanceById}
+              />
+            </TabContentItem>
+            <TabContentItem active={activeTab === 3}>
+              <WorkingContent
+                title="Statistics"
+                name="statistics"
+                anotherField="money"
+                employeeId={employee.id}
+                fetchFn={fetchStatisticsByEmployeeId}
+                createFn={createNewStatistic}
+                deleteFn={deleteStatisticById}
               />
             </TabContentItem>
           </TabContentContainer>

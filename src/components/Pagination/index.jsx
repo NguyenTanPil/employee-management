@@ -44,31 +44,38 @@ const Pagination = ({ pageNumber, page, setPage }) => {
   };
 
   return (
-    <Container>
-      <PageNumberList>
-        <li>
-          <PageButton disabled={page === 1} onClick={handlePrevPage}>
-            <MdOutlineKeyboardArrowLeft />
-          </PageButton>
-        </li>
-        {[...Array(pageNumber).keys()].map((number) => (
-          <li key={number}>
-            <PageButton
-              active={page === number + 1}
-              onClick={(e) => handleClickPage(e, number + 1)}
-            >
-              {number + 1}
-            </PageButton>
-          </li>
-        ))}
+    <>
+      {pageNumber > 0 && (
+        <Container>
+          <PageNumberList>
+            <li>
+              <PageButton disabled={page === 1} onClick={handlePrevPage}>
+                <MdOutlineKeyboardArrowLeft />
+              </PageButton>
+            </li>
+            {[...Array(pageNumber).keys()].map((number) => (
+              <li key={number}>
+                <PageButton
+                  active={page === number + 1}
+                  onClick={(e) => handleClickPage(e, number + 1)}
+                >
+                  {number + 1}
+                </PageButton>
+              </li>
+            ))}
 
-        <li>
-          <PageButton disabled={page === 2} onClick={handleNextPage}>
-            <MdOutlineKeyboardArrowRight />
-          </PageButton>
-        </li>
-      </PageNumberList>
-    </Container>
+            <li>
+              <PageButton
+                disabled={page === pageNumber}
+                onClick={handleNextPage}
+              >
+                <MdOutlineKeyboardArrowRight />
+              </PageButton>
+            </li>
+          </PageNumberList>
+        </Container>
+      )}
+    </>
   );
 };
 
