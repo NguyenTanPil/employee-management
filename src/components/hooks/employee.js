@@ -1,7 +1,5 @@
-import { useQuery, useQueryClient, useMutation } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import {
-  deleteEmployee,
-  deleteEmployeeBySelected,
   fetchEmployeeByTeamId,
   fetchEmployeeData,
 } from '../../api/employeeApi';
@@ -33,35 +31,20 @@ export const useGetEmployeeListByTeamName = (teamName) =>
     }
   );
 
-export const useDeleteEmployeeById = (page, searchContent = '') => {
+export const useDeleteEmployeeBySelected = ({
+  deleteFn,
+  page,
+  searchContent,
+}) => {
   const queryClient = useQueryClient();
 
-  return useMutation(deleteEmployee, {
-    onSuccess(deletedEmployee) {
-      // update data
-      queryClient.setQueryData(
-        ['getEmployeeData', page + '', searchContent],
-        (prev) => ({
-          ...prev,
-          data: prev.data.filter((item) => item.id !== deletedEmployee.id),
-        })
-      );
-    },
-  });
-};
-
-export const useDeleteEmployeeBySelected = (page, searchContent) => {
-  const queryClient = useQueryClient();
-
-  return useMutation(deleteEmployeeBySelected, {
-    onSuccess(employeeIdList) {
-      queryClient.setQueryData(
-        ['getEmployeeData', page + '', searchContent],
-        (prev) => ({
-          ...prev,
-          data: prev.data.filter((item) => !employeeIdList.includes(item.id)),
-        })
-      );
+  return useMutation(deleteFn, {
+    onSuccess() {
+      queryClient.invalidateQueries([
+        'getEmployeeData',
+        page + '',
+        searchContent,
+      ]);
     },
   });
 };

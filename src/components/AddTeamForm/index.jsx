@@ -34,13 +34,13 @@ const AddTeamForm = (
         innerRef={formikRef}
         enableReinitialize={true}
         validateOnBlur={true}
-        validateOnChange={false}
+        validateOnChange={true}
         onSubmit={(values) => {
           handleAddNewEmployee(values);
           handleShowModal(false);
         }}
       >
-        {({ handleSubmit, resetForm, errors, touched }) => (
+        {({ handleSubmit, resetForm, errors, touched, isValid }) => (
           <Form>
             <FilledInput
               name="teamName"
@@ -60,7 +60,11 @@ const AddTeamForm = (
               >
                 Cancel
               </TextButton>
-              <TextButton active onClick={handleSubmit}>
+              <TextButton
+                active
+                disabled={Object.keys(touched).length === 0 || !isValid}
+                onClick={handleSubmit}
+              >
                 Add
               </TextButton>
             </ModalFooter>

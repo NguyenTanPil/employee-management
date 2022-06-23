@@ -1,10 +1,17 @@
-import debounce from 'lodash.debounce';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CgTrash } from 'react-icons/cg';
 import { RiAddLine } from 'react-icons/ri';
 import { TbListDetails } from 'react-icons/tb';
 import { useMutation } from 'react-query';
-import { createNewEmployee } from '../../../api/employeeApi';
+import { v4 as uuidv4 } from 'uuid';
+import { useSnapshot } from 'valtio';
+import {
+  createNewEmployee,
+  deleteEmployee,
+  deleteEmployeeBySelected,
+} from '../../../api/employeeApi';
+import { chooseTeamName } from '../../../app/actions';
+import { store } from '../../../app/store';
 import { IconButton, IconLinkButton } from '../../../common/Button';
 import { CheckBox } from '../../../common/Input';
 import { Table, TRow, TRowItem } from '../../../common/Table';
@@ -15,7 +22,6 @@ import {
   handleSelectButton,
 } from '../../../utils/employee';
 import {
-  useDeleteEmployeeById,
   useDeleteEmployeeBySelected,
   useGetEmployeeListBySearchContent,
 } from '../../hooks/employee';
@@ -40,8 +46,8 @@ const PAGE_LIMIT = 3;
 
 const Home = () => {
   // states
+  const { searchContent } = useSnapshot(store);
   const [page, setPage] = useState(1);
-  const [searchContent, setSearchContent] = useState('');
   const [checkedList, setCheckedList] = useState();
   const [isShowAddModal, setIsShowAddModal] = useState(false);
   const [isShowDeleteAllModal, setIsShowDeleteAllModal] = useState(false);
@@ -59,13 +65,18 @@ const Home = () => {
   // functions
   const { mutate: addNewEmployeeMutate } = useMutation(createNewEmployee);
 
-  const { mutate: deleteEmployeeMutate } = useDeleteEmployeeById(
+  const { mutate: deleteEmployeeMutate } = useDeleteEmployeeBySelected({
+    deleteFn: deleteEmployee,
     page,
-    searchContent
-  );
+    searchContent,
+  });
 
   const { mutate: deleteEmployeeBySelectedMutate } =
-    useDeleteEmployeeBySelected(page, searchContent);
+    useDeleteEmployeeBySelected({
+      deleteFn: deleteEmployeeBySelected,
+      page,
+      searchContent,
+    });
 
   const handleChecked = (idx) => {
     const newCheckedList = handleSelectButton(checkedList, idx);
@@ -86,8 +97,9 @@ const Home = () => {
 
   const handleAddNewEmployee = (values) => {
     const newEmployee = {
-      id: parseInt(employeeList.total) + 1 + '',
+      id: uuidv4(),
       deleted: false,
+      img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTA2t-l5SHRlLzaSwUJO33flcmeZdFtiFJk8A&usqp=CAU',
       ...values,
     };
     setIsShowAddModal(false);
@@ -98,15 +110,6 @@ const Home = () => {
     setDeleteIdx(idx);
     setIsShowDeleteModal(true);
   };
-
-  const handleChangeSearchInput = (e) => {
-    setSearchContent(e.target.value);
-  };
-
-  const handleChangeSearchContent = useMemo(
-    () => debounce(handleChangeSearchInput, 300),
-    []
-  );
 
   useEffect(() => {
     if (employeeList) {
@@ -163,10 +166,7 @@ const Home = () => {
         <EmployeeTotal>
           <h3>Total: {employeeList.total}</h3>
         </EmployeeTotal>
-        <SearchBar
-          placeholder="Search employee by name..."
-          handleChange={handleChangeSearchContent}
-        />
+        <SearchBar placeholder="Search employee by name..." />
       </SideSearch>
       <SideEmployeeList>
         <h4>Search Result</h4>
@@ -206,7 +206,10 @@ const Home = () => {
                 </TRowItem>
                 <TRowItem data-label="Phone">{employee.phoneNumber}</TRowItem>
                 <TRowItem data-label="Team">
-                  <TextLink to={`/team/${employee.team}`}>
+                  <TextLink
+                    to={`/team/${employee.team}`}
+                    onClick={() => chooseTeamName(employee.team)}
+                  >
                     {employee.team}
                   </TextLink>
                 </TRowItem>

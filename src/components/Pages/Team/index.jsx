@@ -1,11 +1,20 @@
 import { useEffect, useState } from 'react';
+import { CgTrash } from 'react-icons/cg';
 import { RiAddLine } from 'react-icons/ri';
 import { TbListDetails } from 'react-icons/tb';
+import { v4 as uuidv4 } from 'uuid';
+import { useSnapshot } from 'valtio';
+import { chooseTeamName } from '../../../app/actions';
+import { store } from '../../../app/store';
 import { IconButton } from '../../../common/Button';
 import { Table, TRow, TRowItem } from '../../../common/Table';
 import { TextCursorActive, TextLink } from '../../../common/Text';
 import { useGetEmployeeListByTeamName } from '../../hooks/employee';
-import { useCreateNewTeam, useGetTeamList } from '../../hooks/team';
+import {
+  useCreateNewTeam,
+  useDeleteEmployeeInTeam,
+  useGetTeamList,
+} from '../../hooks/team';
 import LoadingSpinner from '../../LoadingSpinner';
 import TeamModals from '../../ModalGroup/TeamModals';
 import NoneSpinner from '../../NoneSpinner';
@@ -19,8 +28,10 @@ import { EmployeeTable, SideTeam, TableCaption, TeamTable } from './TeamStyles';
 
 const Team = () => {
   // state
-  const [teamName, setTeamName] = useState('');
+  const { teamName } = useSnapshot(store);
   const [isShowAddModal, setIsShowAddModal] = useState(false);
+  const [isShowDeleteModal, setIsShowDeleteModal] = useState(false);
+  const [deleteIdx, setDeleteIdx] = useState(0);
 
   const {
     data: teamList,
@@ -36,21 +47,34 @@ const Team = () => {
 
   // functions
   const { mutate: createNewTeamMutate } = useCreateNewTeam();
+  const { mutate: deleteEmployeeInTeamMutate } =
+    useDeleteEmployeeInTeam(teamName);
 
   const handleAddNewTeam = (values) => {
     const newTeam = {
-      id: teamList.length + 1 + '',
+      id: uuidv4(),
       ...values,
     };
 
     createNewTeamMutate(newTeam);
   };
 
+  const handleDeleteEmployeeInTeam = (idx) => {
+    deleteEmployeeInTeamMutate(idx);
+    setIsShowDeleteModal(false);
+    setDeleteIdx(0);
+  };
+
+  const handleShowDeleteEmployeeModal = (idx) => {
+    setDeleteIdx(idx);
+    setIsShowDeleteModal(true);
+  };
+
   useEffect(() => {
-    if (teamList) {
-      setTeamName(teamList[0].teamName);
+    if (teamList && !teamName) {
+      chooseTeamName(teamList[0].teamName);
     }
-  }, [teamList]);
+  }, [teamList, teamName]);
 
   if (isTeamListLoading || isEmployeeListLoading || isEmployeeListIdle) {
     return <LoadingSpinner />;
@@ -64,8 +88,12 @@ const Team = () => {
     <Container>
       <TeamModals
         isShowAddModal={isShowAddModal}
+        deleteIdx={deleteIdx}
+        isShowDeleteModal={isShowDeleteModal}
+        setIsShowDeleteModal={setIsShowDeleteModal}
         setIsShowAddModal={setIsShowAddModal}
         handleAddNewTeam={handleAddNewTeam}
+        handleDeleteEmployee={handleDeleteEmployeeInTeam}
       />
 
       <SideTitle>
@@ -99,7 +127,7 @@ const Team = () => {
                 <TRowItem data-label="Team Name">
                   <TextCursorActive
                     active={item.teamName === teamName}
-                    onClick={() => setTeamName(item.teamName)}
+                    onClick={() => chooseTeamName(item.teamName)}
                   >
                     {item.teamName}
                   </TextCursorActive>
@@ -108,7 +136,7 @@ const Team = () => {
                   <IconButton
                     pt="0"
                     pb="0"
-                    onClick={() => setTeamName(item.teamName)}
+                    onClick={() => chooseTeamName(item.teamName)}
                   >
                     <TbListDetails />
                   </IconButton>
@@ -127,25 +155,36 @@ const Team = () => {
                 Total {employeeList.length}{' '}
                 {employeeList.length > 1 ? 'employees' : 'employee'}
               </TableCaption>
-              <Table type="secondary" widthCols={[10, 35, 20, 20, 15]}>
+              <Table type="secondary" widthCols={[7, 30, 19, 20, 12, 12]}>
                 <TRow isRowTitle>
                   <TRowItem>No</TRowItem>
                   <TRowItem>FullName</TRowItem>
                   <TRowItem>Phone</TRowItem>
                   <TRowItem>Address</TRowItem>
                   <TRowItem>Sex</TRowItem>
+                  <TRowItem>Option</TRowItem>
                 </TRow>
                 {employeeList.map((item, idx) => (
                   <TRow key={item.id}>
                     <TRowItem data-label="No">{idx + 1}</TRowItem>
                     <TRowItem data-label="FullName">
-                      <TextLink to={`/employee/1/${item.id}`}>
+                      <TextLink to={`/employee/0/${item.id}`}>
                         {item.fullName}
                       </TextLink>
                     </TRowItem>
                     <TRowItem data-label="Phone">{item.phoneNumber}</TRowItem>
                     <TRowItem data-label="Address">{item.address}</TRowItem>
                     <TRowItem data-label="Sex">{item.sex}</TRowItem>
+                    <TRowItem data-label="Option">
+                      <IconButton
+                        danger
+                        pt="0"
+                        pb="0"
+                        onClick={() => handleShowDeleteEmployeeModal(item.id)}
+                      >
+                        <CgTrash />
+                      </IconButton>
+                    </TRowItem>
                   </TRow>
                 ))}
               </Table>

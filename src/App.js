@@ -8,6 +8,7 @@ import EmployeeDetail from './components/Pages/EmployeeDetail';
 import Team from './components/Pages/Team';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
+import { proxy, useSnapshot } from 'valtio';
 
 // create client
 const queryClient = new QueryClient({
@@ -32,7 +33,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route exact path="/team" element={<Team />} />
-            <Route exact path="/team:teamName" element={<Team />} />
+            <Route exact path="/team/:teamName" element={<Team />} />
             <Route path="/employee" element={<Home />} />
             <Route
               path="/employee/:page/:employeeId"

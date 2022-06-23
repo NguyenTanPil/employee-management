@@ -7,19 +7,15 @@ import {
   deleteAdvanceById,
   fetchAdvanceByEmployeeId,
 } from '../../../api/advanceApi';
-import {
-  createNewStatistic,
-  deleteStatisticById,
-  fetchStatisticsByEmployeeId,
-} from '../../../api/statisticsApi';
+import { deleteEmployee } from '../../../api/employeeApi';
 import {
   createNewWorking,
   deleteWorkingById,
   fetchWorkingByEmployeeId,
 } from '../../../api/workingApi';
 import { IconButton, OriginTextButton } from '../../../common/Button';
-import { useDeleteEmployeeById } from '../../hooks/employee';
 import {
+  useDeleteEmployeeDetail,
   useGetEmployeeById,
   useUpdateEmployeeById,
 } from '../../hooks/employeeDetail';
@@ -28,6 +24,7 @@ import InformationContent from '../../InformationContent';
 import LoadingSpinner from '../../LoadingSpinner';
 import EmployeeDetailModals from '../../ModalGroup/EmployeeDetailModals';
 import NavTab from '../../NavTab';
+import StatisticsContent from '../../StatisticsContent';
 import WorkingContent from '../../WorkingContent';
 import {
   Container,
@@ -63,7 +60,8 @@ const EmployeeDetail = () => {
   // functions
   const { mutate: updateEmployeeMutate } = useUpdateEmployeeById(page);
 
-  const { mutate: deleteEmployeeMutate } = useDeleteEmployeeById(page);
+  const { mutate: deleteEmployeeMutate } =
+    useDeleteEmployeeDetail(deleteEmployee);
 
   const handleEditEmployee = (values) => {
     setIsShowEditModal(false);
@@ -121,7 +119,7 @@ const EmployeeDetail = () => {
             <img src={employee.avatar} alt="" />
           </Avatar>
           <ButtonGroup>
-            <OriginTextButton active>No : {employee.id}</OriginTextButton>
+            {/* <OriginTextButton active>No : {employee.id}</OriginTextButton> */}
             <OriginTextButton active success>
               Age : {employee.age}
             </OriginTextButton>
@@ -163,14 +161,9 @@ const EmployeeDetail = () => {
               />
             </TabContentItem>
             <TabContentItem active={activeTab === 3}>
-              <WorkingContent
-                title="Statistics"
-                name="statistics"
-                anotherField="money"
+              <StatisticsContent
                 employeeId={employee.id}
-                fetchFn={fetchStatisticsByEmployeeId}
-                createFn={createNewStatistic}
-                deleteFn={deleteStatisticById}
+                salaryPerHour={employee.moneyPerHour}
               />
             </TabContentItem>
           </TabContentContainer>

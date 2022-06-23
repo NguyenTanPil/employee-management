@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { CgTrash } from 'react-icons/cg';
 import { MdAddCircleOutline } from 'react-icons/md';
+import { v4 as uuidv4 } from 'uuid';
 import { IconButton } from '../../common/Button';
 import { Table, TRow, TRowItem } from '../../common/Table';
 import {
@@ -34,13 +35,21 @@ const WorkingContent = ({
   });
 
   // functions
-  const { mutate: createNewItemMutate } = useCreateNewItem(title, createFn);
+  const { mutate: createNewItemMutate } = useCreateNewItem({
+    title,
+    employeeId,
+    createFn,
+  });
 
-  const { mutate: deleteItemMutate } = useDeleteItem(title, deleteFn);
+  const { mutate: deleteItemMutate } = useDeleteItem({
+    title,
+    employeeId,
+    deleteFn,
+  });
 
   const handleAddNewWorking = (values) => {
     const newItem = {
-      id: data.length + 1 + employeeId,
+      id: uuidv4(),
       employeeId,
       deleted: false,
       date: values.date,

@@ -1,5 +1,6 @@
 import { fetchEmployeeById, updateEmployee } from '../../api/employeeApi';
 import { useQueryClient, useQuery, useMutation } from 'react-query';
+import { useNavigate } from 'react-router-dom';
 
 export const useGetEmployeeById = (employeeId, page) => {
   const queryClient = useQueryClient();
@@ -27,18 +28,32 @@ export const useUpdateEmployeeById = (page) => {
       queryClient.setQueryData(['getEmployee', newEmployee.id], newEmployee);
 
       // update employee list with new employee
-      queryClient.setQueryData(['getEmployeeData', page, ''], (prev) => ({
-        ...prev,
-        data: prev.data.map((item) => {
-          if (item.id === newEmployee.id) {
-            return {
-              ...item,
-              ...newEmployee,
-            };
-          }
-          return item;
-        }),
-      }));
+      if (page !== '0') {
+        queryClient.setQueryData(['getEmployeeData', page, ''], (prev) => ({
+          ...prev,
+          data: prev?.data.map((item) => {
+            if (item.id === newEmployee.id) {
+              return {
+                ...item,
+                ...newEmployee,
+              };
+            }
+            return item;
+          }),
+        }));
+      }
+    },
+  });
+};
+
+export const useDeleteEmployeeDetail = (deleteFn) => {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  return useMutation(deleteFn, {
+    onSuccess() {
+      navigate('/');
+      queryClient.invalidateQueries(['getEmployeeData']);
     },
   });
 };

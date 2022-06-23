@@ -20,11 +20,6 @@ const validate = {
       return 'Full name must be at most 255 characters';
     }
   },
-  address: (value) => {
-    if (!value) {
-      return 'Address is required';
-    }
-  },
   age: (value) => {
     if (value <= 0) {
       return 'Age must be positive';
@@ -51,10 +46,10 @@ const validate = {
 const initValues = {
   fullName: '',
   address: '',
-  age: 0,
+  age: 1,
   sex: 'male',
   startDay: '2022-06-14',
-  moneyPerHour: 0,
+  moneyPerHour: 1,
   phoneNumber: '',
 };
 
@@ -80,13 +75,13 @@ const AddEmployeeForm = (
         innerRef={formikRef}
         enableReinitialize={true}
         validateOnBlur={true}
-        validateOnChange={false}
+        validateOnChange={true}
         onSubmit={(values, { resetForm }) => {
           handleAddNewEmployee(values);
           resetForm();
         }}
       >
-        {({ handleSubmit, resetForm, errors, touched }) => (
+        {({ handleSubmit, resetForm, errors, touched, isValid }) => (
           <Form>
             <InputGroup>
               <FilledInput
@@ -105,15 +100,7 @@ const AddEmployeeForm = (
               />
             </InputGroup>
             <InputGroup>
-              <FilledInput
-                name="address"
-                type="text"
-                placeholder="Address"
-                errorMessage={
-                  errors.address && touched.address && errors.address
-                }
-                validateFn={validate.address}
-              />
+              <FilledInput name="address" type="text" placeholder="Address" />
               <Field
                 name="sex"
                 optionList={['male', 'female', 'other']}
@@ -168,7 +155,15 @@ const AddEmployeeForm = (
               >
                 Cancel
               </TextButton>
-              <TextButton active onClick={handleSubmit}>
+              <TextButton
+                active
+                disabled={
+                  initialValues.id
+                    ? !isValid
+                    : Object.keys(touched).length === 0 || !isValid
+                }
+                onClick={handleSubmit}
+              >
                 {initialValues.id ? 'Update' : 'Add'}
               </TextButton>
             </ModalFooter>

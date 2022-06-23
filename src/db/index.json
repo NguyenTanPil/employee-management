@@ -4,7 +4,7 @@
       "id": "1",
       "fullName": "Tran Thi Huong",
       "phoneNumber": "00123456789",
-      "team": "Manager",
+      "team": "Dev",
       "address": "Ha Noi",
       "age": 12,
       "startDay": "2022-06-14",
@@ -17,25 +17,25 @@
       "id": "2",
       "fullName": "Vo Chi Thanh",
       "phoneNumber": "00123456789",
-      "team": "Dev",
+      "team": "QA",
       "address": "Ha Noi",
       "age": 14,
       "startDay": "2022-06-14",
       "sex": "male",
       "deleted": false,
-      "moneyPerHour": 7,
+      "moneyPerHour": 10,
       "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8YXZhdGFyfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60"
     },
     {
       "id": "3",
       "fullName": "Tran Van Long",
       "phoneNumber": "0123456789",
-      "team": "Engineer",
+      "team": "QA",
       "address": "Ha Noi",
       "age": 12,
       "startDay": "2022-06-14",
       "sex": "male",
-      "deleted": false,
+      "deleted": true,
       "moneyPerHour": 6,
       "avatar": "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8YXZhdGFyfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60"
     },
@@ -116,6 +116,19 @@
       "phoneNumber": "0846856489",
       "team": "Dev",
       "avatar": "https://images.unsplash.com/photo-1569913486515-b74bf7751574?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MjV8fGF2YXRhcnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60"
+    },
+    {
+      "id": "aee2ed2b-47b1-4e9a-9881-c7b98841a083",
+      "deleted": false,
+      "fullName": "Felix Nguyen",
+      "address": "",
+      "age": 22,
+      "sex": "male",
+      "startDay": "2022-06-14",
+      "moneyPerHour": 12000,
+      "phoneNumber": "0388768485",
+      "team": "Dev",
+      "avatar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTA2t-l5SHRlLzaSwUJO33flcmeZdFtiFJk8A&usqp=CAU"
     }
   ],
   "teams": [
@@ -150,7 +163,7 @@
     },
     {
       "id": "2",
-      "employeeId": "2",
+      "employeeId": "7",
       "date": "2022-06-14",
       "hours": 10,
       "deleted": false
@@ -182,6 +195,20 @@
       "deleted": false,
       "date": "2022-06-14",
       "hours": 3
+    },
+    {
+      "id": "d7f64771-26af-4283-a000-cf83e61d81bc",
+      "employeeId": "2",
+      "deleted": false,
+      "date": "2022-06-14",
+      "hours": 4
+    },
+    {
+      "id": "670f7518-71e7-4fcd-9729-8ceb7c507088",
+      "employeeId": "2",
+      "deleted": false,
+      "date": "2022-06-23",
+      "hours": 6
     }
   ],
   "advances": [
@@ -198,6 +225,20 @@
       "date": "2022-06-14",
       "money": 10,
       "deleted": false
+    },
+    {
+      "id": "a68dbb65-6c4b-4c31-a991-a8cf85001bf9",
+      "employeeId": "2",
+      "deleted": false,
+      "date": "2022-06-14",
+      "money": 6
+    },
+    {
+      "id": "fff553be-516b-4c77-9be6-2c288619ee7a",
+      "employeeId": "2",
+      "deleted": false,
+      "date": "2022-06-13",
+      "money": 3
     }
   ],
   "statistics": [

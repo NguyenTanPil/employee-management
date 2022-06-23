@@ -27,6 +27,7 @@ export default function WorkingModals({
         Form={
           <AddWorkingForm
             ref={formikRef}
+            name={name}
             handleShowModal={setIsShowAddModal}
             handleAddNewEmployee={handleAddNewWorking}
           />

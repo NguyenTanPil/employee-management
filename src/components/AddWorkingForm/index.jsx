@@ -19,7 +19,7 @@ const initValues = {
 };
 
 const AddWorkingForm = (
-  { initialValues = initValues, handleShowModal, handleAddNewEmployee },
+  { initialValues = initValues, name, handleShowModal, handleAddNewEmployee },
   ref
 ) => {
   const formikRef = useRef();
@@ -29,6 +29,7 @@ const AddWorkingForm = (
       formikRef.current.resetForm();
     },
   }));
+
   return (
     <>
       <Formik
@@ -36,20 +37,20 @@ const AddWorkingForm = (
         innerRef={formikRef}
         enableReinitialize={true}
         validateOnBlur={true}
-        validateOnChange={false}
+        validateOnChange={true}
         onSubmit={(values, { resetForm }) => {
           handleAddNewEmployee(values);
           resetForm();
         }}
       >
-        {({ handleSubmit, resetForm, errors, touched }) => (
+        {({ handleSubmit, resetForm, errors, touched, isValid }) => (
           <Form>
             <InputGroup>
               <FilledInput name="date" type="date" placeholder="date" />
               <FilledInput
                 name="salaryPerHour"
                 type="number"
-                placeholder="salary/hours"
+                placeholder={name === 'working' ? 'hours' : 'money'}
                 errorMessage={
                   errors.salaryPerHour &&
                   touched.salaryPerHour &&
@@ -67,8 +68,12 @@ const AddWorkingForm = (
               >
                 Cancel
               </TextButton>
-              <TextButton active onClick={handleSubmit}>
-                {initialValues.no ? 'Update' : 'Add'}
+              <TextButton
+                active
+                disabled={Object.keys(touched).length === 0 || !isValid}
+                onClick={handleSubmit}
+              >
+                Add
               </TextButton>
             </ModalFooter>
           </Form>

@@ -1,11 +1,16 @@
 import { useRef } from 'react';
 import AddModal from '../AddModal';
 import AddTeamForm from '../AddTeamForm';
+import AlertDeleteModal from '../AlertDeleteModal';
 
 export default function TeamModals({
   isShowAddModal,
+  deleteIdx,
+  isShowDeleteModal,
+  setIsShowDeleteModal,
   setIsShowAddModal,
   handleAddNewTeam,
+  handleDeleteEmployee,
 }) {
   const formikRef = useRef();
 
@@ -27,6 +32,15 @@ export default function TeamModals({
         }
         isShowModal={isShowAddModal}
         handleCloseModal={handleCloseModal}
+      />
+
+      <AlertDeleteModal
+        deleteIdx={deleteIdx}
+        title={`Are you sure to delete employee?`}
+        message={`Will delete this employee!`}
+        isShowModal={isShowDeleteModal}
+        handleShowModal={setIsShowDeleteModal}
+        handleDeleteAllSelected={handleDeleteEmployee}
       />
     </>
   );
