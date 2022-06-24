@@ -1,6 +1,6 @@
-import { useQuery, useMutation, useQueryClient } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { deleteEmployee } from '../../api/employeeApi';
-import { createNewTeam, fetchTeamData } from '../../api/teamApi';
+import { createNewTeam, deleteTeam, fetchTeamData } from '../../api/teamApi';
 
 export const useGetTeamList = () => useQuery('getTeamData', fetchTeamData);
 
@@ -24,6 +24,20 @@ export const useDeleteEmployeeInTeam = (teamName) => {
       );
 
       queryClient.invalidateQueries('getEmployeeData');
+    },
+  });
+};
+
+export const useDeleteTeamById = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(deleteTeam, {
+    onSuccess(deletedTeam) {
+      queryClient.setQueryData(['getTeamData'], (prev) =>
+        prev.filter((team) => team.id !== deletedTeam.id)
+      );
+
+      queryClient.invalidateQueries(['getTeamData']);
     },
   });
 };

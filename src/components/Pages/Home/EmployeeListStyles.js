@@ -5,7 +5,7 @@ export const Container = styled.div`
 `;
 
 export const SideTitle = styled.div`
-  border-bottom: 1px solid ${(props) => props.theme.borderColor};
+  border-bottom: 0.1rem solid ${(props) => props.theme.borderColor};
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -13,6 +13,7 @@ export const SideTitle = styled.div`
   padding-top: 1.6rem;
 
   & > h3 {
+    color: ${(props) => props.theme.titleColor};
     font-size: 1.6rem;
     font-weight: 600;
   }

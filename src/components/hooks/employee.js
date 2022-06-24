@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import {
+  createNewEmployee,
   fetchEmployeeByTeamId,
   fetchEmployeeData,
 } from '../../api/employeeApi';
@@ -7,14 +8,14 @@ import {
 export const useGetEmployeeListBySearchContent = ({
   page,
   searchContent,
-  PAGE_LIMIT,
+  pageLimit,
 }) =>
   useQuery(
-    ['getEmployeeData', page + '', searchContent],
+    ['getEmployeeData', page + '', searchContent, pageLimit],
     () =>
       fetchEmployeeData({
         pageParam: page,
-        limit: PAGE_LIMIT,
+        limit: pageLimit,
         searchContent,
       }),
     {
@@ -45,6 +46,16 @@ export const useDeleteEmployeeBySelected = ({
         page + '',
         searchContent,
       ]);
+    },
+  });
+};
+
+export const useCreateNewEmployee = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(createNewEmployee, {
+    onSuccess() {
+      queryClient.invalidateQueries(['getEmployeeData']);
     },
   });
 };

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { CgTrash } from 'react-icons/cg';
 import { RiAddLine } from 'react-icons/ri';
-import { TbListDetails } from 'react-icons/tb';
 import { v4 as uuidv4 } from 'uuid';
 import { useSnapshot } from 'valtio';
 import { chooseTeamName } from '../../../app/actions';
@@ -13,6 +12,7 @@ import { useGetEmployeeListByTeamName } from '../../hooks/employee';
 import {
   useCreateNewTeam,
   useDeleteEmployeeInTeam,
+  useDeleteTeamById,
   useGetTeamList,
 } from '../../hooks/team';
 import LoadingSpinner from '../../LoadingSpinner';
@@ -32,6 +32,8 @@ const Team = () => {
   const [isShowAddModal, setIsShowAddModal] = useState(false);
   const [isShowDeleteModal, setIsShowDeleteModal] = useState(false);
   const [deleteIdx, setDeleteIdx] = useState(0);
+  const [deleteTeamIdx, setDeleteTeamIdx] = useState(0);
+  const [isShowDeleteTeamModal, setIsShowDeleteTeamModal] = useState(false);
 
   const {
     data: teamList,
@@ -47,6 +49,7 @@ const Team = () => {
 
   // functions
   const { mutate: createNewTeamMutate } = useCreateNewTeam();
+  const { mutate: deleteTeamMutate } = useDeleteTeamById();
   const { mutate: deleteEmployeeInTeamMutate } =
     useDeleteEmployeeInTeam(teamName);
 
@@ -70,6 +73,19 @@ const Team = () => {
     setIsShowDeleteModal(true);
   };
 
+  const handleShowDeleteTeamModal = (teamName, idx) => {
+    setDeleteTeamIdx(idx);
+    chooseTeamName(teamName);
+    setIsShowDeleteTeamModal(true);
+  };
+
+  const handleDeleteTeam = (idx) => {
+    deleteTeamMutate(idx);
+    chooseTeamName(teamList.filter((team) => team.id !== idx)[0].teamName);
+    setIsShowDeleteTeamModal(false);
+    setDeleteTeamIdx(0);
+  };
+
   useEffect(() => {
     if (teamList && !teamName) {
       chooseTeamName(teamList[0].teamName);
@@ -89,11 +105,16 @@ const Team = () => {
       <TeamModals
         isShowAddModal={isShowAddModal}
         deleteIdx={deleteIdx}
+        deleteTeamIdx={deleteTeamIdx}
         isShowDeleteModal={isShowDeleteModal}
+        isShowDeleteTeamModal={isShowDeleteTeamModal}
+        employeeListLength={employeeList.length}
         setIsShowDeleteModal={setIsShowDeleteModal}
+        setIsShowDeleteTeamModal={setIsShowDeleteTeamModal}
         setIsShowAddModal={setIsShowAddModal}
         handleAddNewTeam={handleAddNewTeam}
         handleDeleteEmployee={handleDeleteEmployeeInTeam}
+        handleDeleteTeam={handleDeleteTeam}
       />
 
       <SideTitle>
@@ -134,11 +155,14 @@ const Team = () => {
                 </TRowItem>
                 <TRowItem data-label="Detail">
                   <IconButton
+                    danger
                     pt="0"
                     pb="0"
-                    onClick={() => chooseTeamName(item.teamName)}
+                    onClick={() =>
+                      handleShowDeleteTeamModal(item.teamName, item.id)
+                    }
                   >
-                    <TbListDetails />
+                    <CgTrash />
                   </IconButton>
                 </TRowItem>
               </TRow>
@@ -155,18 +179,16 @@ const Team = () => {
                 Total {employeeList.length}{' '}
                 {employeeList.length > 1 ? 'employees' : 'employee'}
               </TableCaption>
-              <Table type="secondary" widthCols={[7, 30, 19, 20, 12, 12]}>
+              <Table type="secondary" widthCols={[30, 20, 20, 15, 15]}>
                 <TRow isRowTitle>
-                  <TRowItem>No</TRowItem>
                   <TRowItem>FullName</TRowItem>
                   <TRowItem>Phone</TRowItem>
                   <TRowItem>Address</TRowItem>
                   <TRowItem>Sex</TRowItem>
                   <TRowItem>Option</TRowItem>
                 </TRow>
-                {employeeList.map((item, idx) => (
+                {employeeList.map((item) => (
                   <TRow key={item.id}>
-                    <TRowItem data-label="No">{idx + 1}</TRowItem>
                     <TRowItem data-label="FullName">
                       <TextLink to={`/employee/0/${item.id}`}>
                         {item.fullName}

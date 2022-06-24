@@ -8,3 +8,7 @@ export const onChangeSearchContent = (content) => {
 export const chooseTeamName = (teamName) => {
   store.teamName = teamName;
 };
+
+export const onChangeEmployeePerPage = (page) => {
+  store.employeePerPage = page;
+};

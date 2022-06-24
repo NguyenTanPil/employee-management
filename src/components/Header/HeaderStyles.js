@@ -34,6 +34,9 @@ export const Logo = styled(Link)`
 `;
 
 export const Menu = styled.div`
+  display: flex;
+  align-items: center;
+
   a {
     margin-left: 1.2rem;
   }

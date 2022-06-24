@@ -1,14 +1,16 @@
 import { useState } from 'react';
-import GirdLayout from './components/GirdLayout';
-import Header from './components/Header';
-import Home from './components/Pages/Home';
-import GlobalStyles from './GlobalStyles';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import EmployeeDetail from './components/Pages/EmployeeDetail';
-import Team from './components/Pages/Team';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
-import { proxy, useSnapshot } from 'valtio';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { ThemeProvider } from 'styled-components';
+import { getTheme } from './common/theme';
+import GirdLayout from './components/GirdLayout';
+import Header from './components/Header';
+import EmployeeDetail from './components/Pages/EmployeeDetail';
+import Home from './components/Pages/Home';
+import Team from './components/Pages/Team';
+import GlobalStyles from './GlobalStyles';
+import { getCookie } from './utils/cookie';
 
 // create client
 const queryClient = new QueryClient({
@@ -22,28 +24,32 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-  const [activeTab, setActiveTab] = useState(0);
+  const [theme, setTheme] = useState(() => {
+    return getCookie('theme') || 'light';
+  });
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <GlobalStyles />
-      <GirdLayout>
-        <Router>
-          <Header activeTab={activeTab} setActiveTab={setActiveTab} />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route exact path="/team" element={<Team />} />
-            <Route exact path="/team/:teamName" element={<Team />} />
-            <Route path="/employee" element={<Home />} />
-            <Route
-              path="/employee/:page/:employeeId"
-              element={<EmployeeDetail />}
-            />
-          </Routes>
-        </Router>
-      </GirdLayout>
-      <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
+    <ThemeProvider theme={getTheme(theme)}>
+      <QueryClientProvider client={queryClient}>
+        <GlobalStyles />
+        <GirdLayout>
+          <Router>
+            <Header theme={theme} setTheme={setTheme} />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route exact path="/team" element={<Team />} />
+              <Route exact path="/team/:teamName" element={<Team />} />
+              <Route path="/employee" element={<Home />} />
+              <Route
+                path="/employee/:page/:employeeId"
+                element={<EmployeeDetail />}
+              />
+            </Routes>
+          </Router>
+        </GirdLayout>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
 

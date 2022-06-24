@@ -10,7 +10,7 @@ import {
   deleteEmployee,
   deleteEmployeeBySelected,
 } from '../../../api/employeeApi';
-import { chooseTeamName } from '../../../app/actions';
+import { chooseTeamName, onChangeEmployeePerPage } from '../../../app/actions';
 import { store } from '../../../app/store';
 import { IconButton, IconLinkButton } from '../../../common/Button';
 import { CheckBox } from '../../../common/Input';
@@ -22,10 +22,10 @@ import {
   handleSelectButton,
 } from '../../../utils/employee';
 import {
+  useCreateNewEmployee,
   useDeleteEmployeeBySelected,
   useGetEmployeeListBySearchContent,
 } from '../../hooks/employee';
-import { useGetTeamList } from '../../hooks/team';
 import LoadingSpinner from '../../LoadingSpinner';
 import EmployeeModals from '../../ModalGroup/EmployeeModals';
 import NoneSpinner from '../../NoneSpinner';
@@ -42,11 +42,9 @@ import {
   SideTitle,
 } from './EmployeeListStyles';
 
-const PAGE_LIMIT = 3;
-
 const Home = () => {
   // states
-  const { searchContent } = useSnapshot(store);
+  const { searchContent, employeePerPage } = useSnapshot(store);
   const [page, setPage] = useState(1);
   const [checkedList, setCheckedList] = useState();
   const [isShowAddModal, setIsShowAddModal] = useState(false);
@@ -59,11 +57,14 @@ const Home = () => {
     isLoading: isEmployeeListLoading,
     error,
     isPreviousData: isPreviousEmployeeList,
-  } = useGetEmployeeListBySearchContent({ page, searchContent, PAGE_LIMIT });
-  const { data: teamList, isLoading: isTeamListLoading } = useGetTeamList();
+  } = useGetEmployeeListBySearchContent({
+    page,
+    searchContent,
+    pageLimit: employeePerPage,
+  });
 
   // functions
-  const { mutate: addNewEmployeeMutate } = useMutation(createNewEmployee);
+  const { mutate: addNewEmployeeMutate } = useCreateNewEmployee();
 
   const { mutate: deleteEmployeeMutate } = useDeleteEmployeeBySelected({
     deleteFn: deleteEmployee,
@@ -88,7 +89,7 @@ const Home = () => {
       deleteEmployeeMutate(idx);
     } else {
       const employeeIdList = checkedList
-        .filter((item) => item.id && item.status)
+        .filter((item) => item.id !== '0' && item.status)
         .map((item) => item.id);
       deleteEmployeeBySelectedMutate(employeeIdList);
     }
@@ -112,14 +113,26 @@ const Home = () => {
   };
 
   useEffect(() => {
-    if (employeeList) {
+    if (employeeList?.data) {
       setCheckedList(
         createCheckedList(employeeList?.data.filter((item) => !item.deleted))
       );
     }
-  }, [employeeList]);
+  }, [employeeList?.data]);
 
-  if (isEmployeeListLoading || !checkedList || isTeamListLoading) {
+  useEffect(() => {
+    if (!employeeList?.data.length || !employeeList?.data) {
+      setPage((prev) => Math.max(prev - 1, 1));
+    }
+  }, [employeePerPage, employeeList?.data]);
+
+  // useEffect(() => {
+  //   if (employeeList?.data.length) {
+  //     onChangeEmployeePerPage(employeeList?.data.length);
+  //   }
+  // }, [searchContent, employeeList?.data]);
+
+  if (isEmployeeListLoading || !checkedList) {
     return <LoadingSpinner />;
   }
 
@@ -132,7 +145,6 @@ const Home = () => {
       <SideTitle>
         <EmployeeModals
           deleteIdx={deleteIdx}
-          teamList={teamList}
           isShowAddModal={isShowAddModal}
           isShowDeleteAllModal={isShowDeleteAllModal}
           isShowDeleteModal={isShowDeleteModal}
@@ -166,14 +178,17 @@ const Home = () => {
         <EmployeeTotal>
           <h3>Total: {employeeList.total}</h3>
         </EmployeeTotal>
-        <SearchBar placeholder="Search employee by name..." />
+        <SearchBar
+          employeeListLength={employeeList?.data.length}
+          placeholder="Search employee by name..."
+        />
       </SideSearch>
       <SideEmployeeList>
         <h4>Search Result</h4>
         {employeeList.data.filter((item) => !item.deleted).length === 0 ? (
           <NoneSpinner text="Don't have any employee" />
         ) : (
-          <Table type="secondary" widthCols={[10, 10, 25, 15, 20, 20]}>
+          <Table type="secondary" widthCols={[10, 35, 15, 20, 20]}>
             <TRow isRowTitle>
               <TRowItem>
                 <CheckBox
@@ -181,14 +196,13 @@ const Home = () => {
                   onClick={() => handleChecked('0')}
                 />
               </TRowItem>
-              <TRowItem>No</TRowItem>
               <TRowItem>FullName</TRowItem>
               <TRowItem>Phone</TRowItem>
               <TRowItem>Team</TRowItem>
               <TRowItem>Options</TRowItem>
             </TRow>
 
-            {employeeList.data.map((employee, idx) => (
+            {employeeList.data.map((employee) => (
               <TRow key={employee.id}>
                 <TRowItem>
                   <CheckBox
@@ -198,7 +212,6 @@ const Home = () => {
                     onClick={() => handleChecked(employee.id)}
                   />
                 </TRowItem>
-                <TRowItem data-label="No">{idx + 1}</TRowItem>
                 <TRowItem data-label="FullName">
                   <TextLink to={`/employee/${page}/${employee.id}`}>
                     {employee.fullName}
@@ -207,7 +220,7 @@ const Home = () => {
                 <TRowItem data-label="Phone">{employee.phoneNumber}</TRowItem>
                 <TRowItem data-label="Team">
                   <TextLink
-                    to={`/team/${employee.team}`}
+                    to={`/team`}
                     onClick={() => chooseTeamName(employee.team)}
                   >
                     {employee.team}
@@ -233,8 +246,10 @@ const Home = () => {
       </SideEmployeeList>
 
       <Pagination
-        pageNumber={Math.ceil(employeeList.total / PAGE_LIMIT)}
+        pageNumber={Math.ceil(employeeList.total / employeePerPage)}
+        maxEmployeePerPage={employeeList.total}
         page={page}
+        employeePerPage={employeePerPage}
         isPreviousData={isPreviousEmployeeList}
         setPage={setPage}
       />

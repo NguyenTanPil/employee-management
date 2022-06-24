@@ -40,12 +40,6 @@ export const Container = styled.div`
     z-index: 2000;
     width: 100%;
 
-    &[type='number']::-webkit-outer-spin-button,
-    &[type='number']::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-
     &:focus,
     :not(:placeholder-shown) {
       & + span {

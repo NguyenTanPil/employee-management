@@ -6,11 +6,16 @@ import AlertDeleteModal from '../AlertDeleteModal';
 export default function TeamModals({
   isShowAddModal,
   deleteIdx,
+  deleteTeamIdx,
   isShowDeleteModal,
+  isShowDeleteTeamModal,
+  employeeListLength,
+  setIsShowDeleteTeamModal,
   setIsShowDeleteModal,
   setIsShowAddModal,
   handleAddNewTeam,
   handleDeleteEmployee,
+  handleDeleteTeam,
 }) {
   const formikRef = useRef();
 
@@ -41,6 +46,25 @@ export default function TeamModals({
         isShowModal={isShowDeleteModal}
         handleShowModal={setIsShowDeleteModal}
         handleDeleteAllSelected={handleDeleteEmployee}
+      />
+
+      <AlertDeleteModal
+        deleteIdx={employeeListLength === 0 ? deleteTeamIdx : false}
+        title={
+          employeeListLength === 0
+            ? `Are you sure to delete team?`
+            : `Can't delete team with people!`
+        }
+        message={
+          employeeListLength === 0
+            ? `Will delete this team!`
+            : `You must delete all employees in this team!`
+        }
+        isShowModal={isShowDeleteTeamModal}
+        handleShowModal={setIsShowDeleteTeamModal}
+        handleDeleteAllSelected={
+          employeeListLength === 0 ? handleDeleteTeam : setIsShowDeleteTeamModal
+        }
       />
     </>
   );

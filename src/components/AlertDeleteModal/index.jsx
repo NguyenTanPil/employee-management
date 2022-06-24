@@ -18,7 +18,6 @@ const AlertDeleteModal = ({
   handleDeleteAllSelected,
 }) => {
   const theme = useTheme();
-
   const handleDeleteYesOption = () => {
     handleShowModal(false);
     handleDeleteAllSelected(deleteIdx);

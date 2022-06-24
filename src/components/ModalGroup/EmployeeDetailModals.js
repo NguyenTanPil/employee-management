@@ -5,7 +5,6 @@ import AlertDeleteModal from '../AlertDeleteModal';
 
 export default function EmployeeDetailModals({
   employee,
-  teamList,
   isShowDeleteModal,
   isShowEditModal,
   setIsShowEditModal,
@@ -22,20 +21,21 @@ export default function EmployeeDetailModals({
 
   return (
     <>
-      <AddModal
-        title="update employee"
-        Form={
-          <AddEmployeeForm
-            ref={formikRef}
-            initialValues={employee}
-            teams={teamList}
-            handleShowModal={setIsShowEditModal}
-            handleAddNewEmployee={handleEditEmployee}
-          />
-        }
-        isShowModal={isShowEditModal}
-        handleCloseModal={handleCloseModal}
-      />
+      {isShowEditModal && (
+        <AddModal
+          title="update employee"
+          Form={
+            <AddEmployeeForm
+              ref={formikRef}
+              initialValues={employee}
+              handleShowModal={setIsShowEditModal}
+              handleAddNewEmployee={handleEditEmployee}
+            />
+          }
+          isShowModal={isShowEditModal}
+          handleCloseModal={handleCloseModal}
+        />
+      )}
 
       <AlertDeleteModal
         deleteIdx={employee.id}

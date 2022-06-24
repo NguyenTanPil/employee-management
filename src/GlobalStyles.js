@@ -7,6 +7,7 @@ export default createGlobalStyle`
   }
 
   body {
+    background-color: ${(props) => props.theme.backgroundColor};
     box-sizing: border-box;
     font-family: "Roboto", sans-serif;
     margin: 0;
@@ -22,4 +23,10 @@ export default createGlobalStyle`
     text-decoration: none;
     color: inherit;
   }
+
+  input[type='number']::-webkit-outer-spin-button,
+    &[type='number']::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
 `;

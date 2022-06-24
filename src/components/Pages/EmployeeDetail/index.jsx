@@ -13,13 +13,13 @@ import {
   deleteWorkingById,
   fetchWorkingByEmployeeId,
 } from '../../../api/workingApi';
+import { store } from '../../../app/store';
 import { IconButton, OriginTextButton } from '../../../common/Button';
 import {
   useDeleteEmployeeDetail,
   useGetEmployeeById,
   useUpdateEmployeeById,
 } from '../../hooks/employeeDetail';
-import { useGetTeamList } from '../../hooks/team';
 import InformationContent from '../../InformationContent';
 import LoadingSpinner from '../../LoadingSpinner';
 import EmployeeDetailModals from '../../ModalGroup/EmployeeDetailModals';
@@ -41,10 +41,12 @@ import {
   TabContentContainer,
   TabContentItem,
 } from './EmployeeDetailStyles';
+import { useSnapshot } from 'valtio';
 
 const EmployeeDetail = () => {
   const { page, employeeId } = useParams();
   const navigate = useNavigate();
+  const { searchContent, employeePerPage } = useSnapshot(store);
 
   const [activeTab, setActiveTab] = useState(0);
   const [isShowEditModal, setIsShowEditModal] = useState(false);
@@ -54,11 +56,18 @@ const EmployeeDetail = () => {
     data: employee,
     isLoading: isEmployeeLoading,
     error,
-  } = useGetEmployeeById(employeeId, page);
-  const { data: teamList, isLoading: isTeamListLoading } = useGetTeamList();
+  } = useGetEmployeeById({
+    employeeId,
+    page,
+    searchContent,
+    pageLimit: employeePerPage,
+  });
 
   // functions
-  const { mutate: updateEmployeeMutate } = useUpdateEmployeeById(page);
+  const { mutate: updateEmployeeMutate } = useUpdateEmployeeById(
+    page,
+    searchContent
+  );
 
   const { mutate: deleteEmployeeMutate } =
     useDeleteEmployeeDetail(deleteEmployee);
@@ -73,7 +82,7 @@ const EmployeeDetail = () => {
     navigate('/');
   };
 
-  if (isEmployeeLoading || isTeamListLoading) {
+  if (isEmployeeLoading) {
     return <LoadingSpinner />;
   }
 
@@ -85,7 +94,6 @@ const EmployeeDetail = () => {
     <Container>
       <EmployeeDetailModals
         employee={employee}
-        teamList={teamList}
         isShowDeleteModal={isShowDeleteModal}
         isShowEditModal={isShowEditModal}
         setIsShowEditModal={setIsShowEditModal}

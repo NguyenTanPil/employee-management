@@ -2,7 +2,12 @@ import { fetchEmployeeById, updateEmployee } from '../../api/employeeApi';
 import { useQueryClient, useQuery, useMutation } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 
-export const useGetEmployeeById = (employeeId, page) => {
+export const useGetEmployeeById = ({
+  employeeId,
+  page,
+  searchContent,
+  pageLimit,
+}) => {
   const queryClient = useQueryClient();
 
   return useQuery(
@@ -12,14 +17,14 @@ export const useGetEmployeeById = (employeeId, page) => {
       enable: !!employeeId && !!page,
       initialData: () => {
         return queryClient
-          .getQueryData(['getEmployeeData', page])
+          .getQueryData(['getEmployeeData', page, searchContent, pageLimit])
           ?.data.find((e) => e.id === employeeId);
       },
     }
   );
 };
 
-export const useUpdateEmployeeById = (page) => {
+export const useUpdateEmployeeById = (page, searchContent) => {
   const queryClient = useQueryClient();
 
   return useMutation(updateEmployee, {
@@ -29,18 +34,21 @@ export const useUpdateEmployeeById = (page) => {
 
       // update employee list with new employee
       if (page !== '0') {
-        queryClient.setQueryData(['getEmployeeData', page, ''], (prev) => ({
-          ...prev,
-          data: prev?.data.map((item) => {
-            if (item.id === newEmployee.id) {
-              return {
-                ...item,
-                ...newEmployee,
-              };
-            }
-            return item;
-          }),
-        }));
+        queryClient.setQueryData(
+          ['getEmployeeData', page, searchContent],
+          (prev) => ({
+            ...prev,
+            data: prev?.data.map((item) => {
+              if (item.id === newEmployee.id) {
+                return {
+                  ...item,
+                  ...newEmployee,
+                };
+              }
+              return item;
+            }),
+          })
+        );
       }
     },
   });

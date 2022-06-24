@@ -54,7 +54,7 @@ export const TextInput = styled.input`
 export const CheckBox = styled.div.attrs((props) => ({
   borderColor: props.active
     ? props.theme.buttonBackgroundColor
-    : 'rgba(0,0,0,.25)',
+    : props.theme.pageButtonColor,
   transformAfter: props.active
     ? 'translateY(-50%) scale(0.4)'
     : 'translateY(-50%) scale(0)',
@@ -90,4 +90,21 @@ export const CheckBox = styled.div.attrs((props) => ({
   &:before {
     ${(props) => props.active && jellyAnimation};
   }
+`;
+
+export const SquareInput = styled.input`
+  background-color: transparent;
+  box-sizing: border-box;
+  color: ${(props) => props.theme.fontColor};
+  border: 0.1rem solid ${(props) => props.theme.borderColor};
+  border-radius: 0.4rem;
+  font-size: 1.4rem;
+  font-weight: 500;
+  height: 3.6rem;
+  line-height: 1.43;
+  letter-spacing: 0.1rem;
+  outline: none;
+  padding: 0.8rem 1.2rem;
+  text-align: center;
+  width: 5.2rem;
 `;

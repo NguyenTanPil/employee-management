@@ -40,7 +40,6 @@ export const SelectValue = styled.div`
 
 export const SelectOptions = styled.ul`
   background-color: ${(props) => props.theme.selectBackgroundColor};
-  // border: 0.1rem solid ${(props) => props.theme.buttonBackgroundColor};
   border-radius: 0.4rem;
   box-shadow: rgb(99 99 99 / 20%) 0 0.2rem 0.8rem 0;
   display: flex;
@@ -54,7 +53,7 @@ export const SelectOptions = styled.ul`
 
 export const SelectOptionItem = styled.li.attrs((props) => ({
   selectedBackgroundColor: props.selected
-    ? props.theme.backgroundColor
+    ? props.theme.borderColor
     : props.theme.selectBackgroundColor,
   selectedColor: props.selected
     ? props.theme.buttonBackgroundColor

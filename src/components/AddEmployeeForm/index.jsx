@@ -3,6 +3,8 @@ import { forwardRef, useImperativeHandle, useRef } from 'react';
 import { TextButton } from '../../common/Button';
 import { ModalFooter } from '../../common/Modal';
 import FilledInput from '../FilledInput';
+import { useGetTeamList } from '../hooks/team';
+import LoadingSpinner from '../LoadingSpinner';
 import SelectInput from '../SelectInput';
 import { InputGroup } from './AddEmployeeFormStyles';
 
@@ -54,10 +56,11 @@ const initValues = {
 };
 
 const AddEmployeeForm = (
-  { initialValues = initValues, handleShowModal, handleAddNewEmployee, teams },
+  { initialValues = initValues, handleShowModal, handleAddNewEmployee },
   ref
 ) => {
   const formikRef = useRef();
+  const { data: teams, isLoading: isTeamListLoading } = useGetTeamList();
 
   useImperativeHandle(ref, () => ({
     resetFormik() {
@@ -70,7 +73,8 @@ const AddEmployeeForm = (
       <Formik
         initialValues={{
           ...initialValues,
-          team: initialValues.team || teams[0].teamName,
+          team:
+            initialValues.team || (isTeamListLoading ? ' ' : teams[0].teamName),
         }}
         innerRef={formikRef}
         enableReinitialize={true}
@@ -95,7 +99,11 @@ const AddEmployeeForm = (
               />
               <Field
                 name="team"
-                optionList={teams.map((item) => item.teamName)}
+                optionList={
+                  isTeamListLoading
+                    ? [' ']
+                    : teams.map((item) => item?.teamName)
+                }
                 component={SelectInput}
               />
             </InputGroup>
@@ -137,12 +145,12 @@ const AddEmployeeForm = (
                 name="phoneNumber"
                 type="tel"
                 placeholder="phone number"
-                errorMessage={
-                  errors.phoneNumber &&
-                  touched.phoneNumber &&
-                  errors.phoneNumber
-                }
-                validateFn={validate.phoneNumber}
+                // errorMessage={
+                //   errors.phoneNumber &&
+                //   touched.phoneNumber &&
+                //   errors.phoneNumber
+                // }
+                // validateFn={validate.phoneNumber}
               />
             </InputGroup>
 

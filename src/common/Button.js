@@ -27,6 +27,10 @@ const getBackgroundColor = (props) => {
     backgroundColor = props.theme.warningColor;
   }
 
+  if (props.disabled) {
+    backgroundColor = '#cccccc';
+  }
+
   return backgroundColor;
 };
 
@@ -239,10 +243,12 @@ export const PageButton = styled(Button).attrs((props) => ({
   backgroundColor: props.active
     ? props.theme.buttonBackgroundColor
     : 'transparent',
-  fontColor: props.active ? '#ffffff' : props.theme.buttonBackgroundColor,
+  fontColor: props.active
+    ? props.theme.backgroundColor
+    : props.theme.buttonBackgroundColor,
 }))`
   background-color: ${(props) => props.backgroundColor};
-  border: 0.1rem solid rgba(0, 0, 0, 0.25);
+  border: 0.1rem solid ${(props) => props.theme.pageButtonColor};
   box-sizing: border-box;
   color: ${(props) => props.fontColor};
   display: inline-flex;
@@ -281,4 +287,13 @@ export const PageButton = styled(Button).attrs((props) => ({
     position: absolute;
     transform: scale(0);
   }
+`;
+
+export const ThemeButton = styled(Button)`
+  background-color: ${(props) => props.theme.backgroundColor};
+  border: 0.2rem solid ${(props) => props.theme.buttonBackgroundColor};
+  font-size: 1.6rem;
+  overflow: hidden;
+  padding: 0.6rem 0.8rem;
+  width: 4.2rem;
 `;
