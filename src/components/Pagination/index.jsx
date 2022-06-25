@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   MdOutlineKeyboardArrowLeft,
   MdOutlineKeyboardArrowRight,
 } from 'react-icons/md';
+import { TbRefresh } from 'react-icons/tb';
+import { useSnapshot } from 'valtio';
 import { onChangeEmployeePerPage } from '../../app/actions';
+import { store } from '../../app/store';
 import { PageButton } from '../../common/Button';
 import { SquareInput } from '../../common/Input';
 import { Container, PageNumberList } from './PaginationStyles';
@@ -30,13 +33,11 @@ const handleButtonEffect = (e) => {
   }, 1000);
 };
 
-const Pagination = ({
-  pageNumber,
-  maxEmployeePerPage,
-  employeePerPage,
-  page,
-  setPage,
-}) => {
+const Pagination = ({ pageNumber, maxEmployeePerPage, page, setPage }) => {
+  const { employeePerPage, searchContent } = useSnapshot(store);
+
+  const [pageLimit, setPageLimit] = useState(employeePerPage);
+
   const handlePrevPage = (e) => {
     handleButtonEffect(e);
     setPage((prev) => Math.max(prev - 1, 1));
@@ -47,32 +48,34 @@ const Pagination = ({
     setPage((prev) => prev + 1);
   };
 
-  const handleClickPage = (e, page) => {
+  const handleClickPage = (e, p) => {
     handleButtonEffect(e);
-    setPage(page);
-  };
-
-  const handleNextEmployeePerPage = (e) => {
-    handleButtonEffect(e);
-    onChangeEmployeePerPage(parseInt(employeePerPage) + 1);
-  };
-
-  const handlePrevEmployeePerPage = (e) => {
-    handleButtonEffect(e);
-    onChangeEmployeePerPage(Math.max(parseInt(employeePerPage) - 1, 1));
+    setPage(p);
   };
 
   const handleChangeEmployeePerPage = (e) => {
-    const pageNumber = parseInt(e.target.value);
+    const pageInput = parseInt(e.target.value);
 
-    if (pageNumber <= 0 || isNaN(pageNumber)) {
-      onChangeEmployeePerPage(1);
-    } else if (pageNumber > parseInt(maxEmployeePerPage)) {
-      onChangeEmployeePerPage(parseInt(maxEmployeePerPage));
+    if (pageInput <= 0 || isNaN(pageInput)) {
+      setPageLimit(1);
+    } else if (pageInput > parseInt(maxEmployeePerPage)) {
+      setPageLimit(parseInt(maxEmployeePerPage));
     } else {
-      onChangeEmployeePerPage(pageNumber);
+      setPageLimit(pageInput);
     }
   };
+
+  useEffect(() => {
+    if (searchContent) {
+      setPageLimit(
+        maxEmployeePerPage > employeePerPage
+          ? employeePerPage
+          : maxEmployeePerPage,
+      );
+    } else {
+      setPageLimit(parseInt(employeePerPage));
+    }
+  }, [maxEmployeePerPage]);
 
   return (
     <>
@@ -80,26 +83,15 @@ const Pagination = ({
         <Container>
           <PageNumberList>
             <li>
-              <PageButton
-                disabled={employeePerPage === 1}
-                onClick={handlePrevEmployeePerPage}
-              >
-                <MdOutlineKeyboardArrowLeft />
-              </PageButton>
-            </li>
-            <li>
               <SquareInput
                 type="number"
-                value={employeePerPage}
+                value={pageLimit}
                 onChange={handleChangeEmployeePerPage}
               />
             </li>
             <li>
-              <PageButton
-                disabled={employeePerPage === parseInt(maxEmployeePerPage)}
-                onClick={handleNextEmployeePerPage}
-              >
-                <MdOutlineKeyboardArrowRight />
+              <PageButton onClick={() => onChangeEmployeePerPage(pageLimit)}>
+                <TbRefresh />
               </PageButton>
             </li>
           </PageNumberList>

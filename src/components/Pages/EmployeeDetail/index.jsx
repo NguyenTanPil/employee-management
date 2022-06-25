@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { BiEditAlt } from 'react-icons/bi';
+import { BsFillCameraFill } from 'react-icons/bs';
 import { CgTrash } from 'react-icons/cg';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useSnapshot } from 'valtio';
 import {
   createNewAdvance,
   deleteAdvanceById,
@@ -15,6 +17,7 @@ import {
 } from '../../../api/workingApi';
 import { store } from '../../../app/store';
 import { IconButton, OriginTextButton } from '../../../common/Button';
+import { useUpdateEmployeeAvatar } from '../../hooks/employee';
 import {
   useDeleteEmployeeDetail,
   useGetEmployeeById,
@@ -36,21 +39,23 @@ import {
   Avatar,
   ButtonGroup,
   LeftSide,
+  OverlayAvatar,
   RightSide,
   SideNavTab,
   TabContentContainer,
   TabContentItem,
 } from './EmployeeDetailStyles';
-import { useSnapshot } from 'valtio';
 
 const EmployeeDetail = () => {
   const { page, employeeId } = useParams();
   const navigate = useNavigate();
-  const { searchContent, employeePerPage } = useSnapshot(store);
+  const { searchContent, employeePerPage, columns, sortBy } =
+    useSnapshot(store);
 
   const [activeTab, setActiveTab] = useState(0);
   const [isShowEditModal, setIsShowEditModal] = useState(false);
   const [isShowDeleteModal, setIsShowDeleteModal] = useState(false);
+  const [isShowUpdateAvatarModal, setIsShowUpdateAvatarModal] = useState(false);
 
   const {
     data: employee,
@@ -61,13 +66,14 @@ const EmployeeDetail = () => {
     page,
     searchContent,
     pageLimit: employeePerPage,
+    sortCondition: columns.find((col) => col.name === sortBy),
   });
 
   // functions
-  const { mutate: updateEmployeeMutate } = useUpdateEmployeeById(
-    page,
-    searchContent
-  );
+  const { mutate: updateEmployeeMutate } = useUpdateEmployeeById();
+
+  const { mutate: updateEmployeeAvatarMutate } =
+    useUpdateEmployeeAvatar(employeeId);
 
   const { mutate: deleteEmployeeMutate } =
     useDeleteEmployeeDetail(deleteEmployee);
@@ -75,6 +81,14 @@ const EmployeeDetail = () => {
   const handleEditEmployee = (values) => {
     setIsShowEditModal(false);
     updateEmployeeMutate(values);
+  };
+
+  const handleUpdateEmployeeAvatar = (values) => {
+    setIsShowUpdateAvatarModal(false);
+    updateEmployeeAvatarMutate({
+      employeeId: employeeId,
+      imgUrl: values.teamName,
+    });
   };
 
   const handleDeleteEmployee = (idx) => {
@@ -96,10 +110,13 @@ const EmployeeDetail = () => {
         employee={employee}
         isShowDeleteModal={isShowDeleteModal}
         isShowEditModal={isShowEditModal}
+        isShowUpdateAvatarModal={isShowUpdateAvatarModal}
+        setIsShowUpdateAvatarModal={setIsShowUpdateAvatarModal}
         setIsShowEditModal={setIsShowEditModal}
         setIsShowDeleteModal={setIsShowDeleteModal}
         handleEditEmployee={handleEditEmployee}
         handleDeleteEmployee={handleDeleteEmployee}
+        handleUpdateEmployeeAvatar={handleUpdateEmployeeAvatar}
       />
       <SideTitle>
         <h3>{employee.fullName}</h3>
@@ -125,9 +142,13 @@ const EmployeeDetail = () => {
         <LeftSide>
           <Avatar>
             <img src={employee.avatar} alt="" />
+            <OverlayAvatar>
+              <IconButton onClick={() => setIsShowUpdateAvatarModal(true)}>
+                <BsFillCameraFill />
+              </IconButton>
+            </OverlayAvatar>
           </Avatar>
           <ButtonGroup>
-            {/* <OriginTextButton active>No : {employee.id}</OriginTextButton> */}
             <OriginTextButton active success>
               Age : {employee.age}
             </OriginTextButton>

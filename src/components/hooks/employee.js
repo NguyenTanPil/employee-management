@@ -3,25 +3,29 @@ import {
   createNewEmployee,
   fetchEmployeeByTeamId,
   fetchEmployeeData,
+  updateEmployeeAvatar,
 } from '../../api/employeeApi';
 
 export const useGetEmployeeListBySearchContent = ({
   page,
   searchContent,
   pageLimit,
-}) =>
-  useQuery(
-    ['getEmployeeData', page + '', searchContent, pageLimit],
+  sortCondition,
+}) => {
+  return useQuery(
+    ['getEmployeeData', page + '', searchContent, pageLimit, sortCondition],
     () =>
       fetchEmployeeData({
         pageParam: page,
         limit: pageLimit,
         searchContent,
+        sortCondition,
       }),
     {
       keepPreviousData: true,
-    }
+    },
   );
+};
 
 export const useGetEmployeeListByTeamName = (teamName) =>
   useQuery(
@@ -29,23 +33,15 @@ export const useGetEmployeeListByTeamName = (teamName) =>
     () => fetchEmployeeByTeamId(teamName),
     {
       enabled: !!teamName,
-    }
+    },
   );
 
-export const useDeleteEmployeeBySelected = ({
-  deleteFn,
-  page,
-  searchContent,
-}) => {
+export const useDeleteEmployeeBySelected = ({ deleteFn }) => {
   const queryClient = useQueryClient();
 
   return useMutation(deleteFn, {
     onSuccess() {
-      queryClient.invalidateQueries([
-        'getEmployeeData',
-        page + '',
-        searchContent,
-      ]);
+      queryClient.invalidateQueries(['getEmployeeData']);
     },
   });
 };
@@ -56,6 +52,16 @@ export const useCreateNewEmployee = () => {
   return useMutation(createNewEmployee, {
     onSuccess() {
       queryClient.invalidateQueries(['getEmployeeData']);
+    },
+  });
+};
+
+export const useUpdateEmployeeAvatar = (employeeId) => {
+  const queryClient = useQueryClient();
+
+  return useMutation(updateEmployeeAvatar, {
+    onSuccess() {
+      queryClient.invalidateQueries(['getEmployee', employeeId]);
     },
   });
 };

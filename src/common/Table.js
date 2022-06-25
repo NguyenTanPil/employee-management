@@ -56,6 +56,15 @@ export const TRow = styled.div`
       props.isRowTitle ? props.theme.titleColor : props.theme.fontColor};
     display: ${(props) => props.isRowTitle && 'none'};
     font-weight: ${(props) => (props.isRowTitle ? '600' : '400')};
+
+    ${(props) =>
+      !props.isRowTitle &&
+      css`
+        &:before {
+          content: attr(data-label);
+          font-weight: 600;
+        }
+      `}
   }
 
   @media only screen and (min-width: 576px) {
@@ -64,6 +73,14 @@ export const TRow = styled.div`
 
     & > div {
       display: flex;
+
+      ${(props) =>
+        !props.isRowTitle &&
+        css`
+          &:before {
+            content: '';
+          }
+        `}
     }
 
     &:last-child {
@@ -86,16 +103,12 @@ export const TRowItem = styled.div`
   justify-content: space-between;
   font-size: 1.4rem;
   font-weight: 400;
-  max-height: 4rem;
+  min-height: 4.6rem;
   text-align: center;
   text-transform: capitalize;
   padding: 0.8rem 1.6rem;
+  position: relative;
   width: 100%;
-
-  &:before {
-    content: attr(data-label);
-    font-weight: 600;
-  }
 
   &:first-child {
     border-top-width: 0.3rem;
@@ -110,12 +123,37 @@ export const TRowItem = styled.div`
     justify-content: center;
     padding: 1.2rem 0;
 
-    &:before {
-      content: '';
+    &:last-child {
+      border-right: none;
+    }
+  }
+`;
+
+export const SortIcons = styled.div`
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  right: 0.5rem;
+
+  svg {
+    font-size: 1.4rem;
+    font-weight: 400;
+
+    &:first-child {
+      color: ${(props) =>
+        props.active && props.order === 'asc'
+          ? props.theme.buttonBackgroundColor
+          : props.theme.fontColor};
+      margin-bottom: -0.25rem;
     }
 
     &:last-child {
-      border-right: none;
+      color: ${(props) =>
+        props.active && props.order === 'desc'
+          ? props.theme.buttonBackgroundColor
+          : props.theme.fontColor};
+      margin-top: -0.25rem;
     }
   }
 `;

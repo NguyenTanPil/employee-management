@@ -9,7 +9,7 @@
       "age": 12,
       "startDay": "2022-06-14",
       "sex": "female",
-      "deleted": true,
+      "deleted": false,
       "moneyPerHour": 4,
       "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8YXZhdGFyfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60"
     },
@@ -22,9 +22,9 @@
       "age": 14,
       "startDay": "2022-06-14",
       "sex": "male",
-      "deleted": true,
+      "deleted": false,
       "moneyPerHour": 10,
-      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8YXZhdGFyfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60"
+      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8YXZhdGFyfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=600&q=60"
     },
     {
       "id": "3",
@@ -35,7 +35,7 @@
       "age": 12,
       "startDay": "2022-06-14",
       "sex": "male",
-      "deleted": true,
+      "deleted": false,
       "moneyPerHour": 6,
       "avatar": "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8YXZhdGFyfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60"
     },
@@ -48,7 +48,7 @@
       "age": 12,
       "startDay": "2022-06-14",
       "sex": "female",
-      "deleted": false,
+      "deleted": true,
       "moneyPerHour": 10,
       "avatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8N3x8YXZhdGFyfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60"
     },
@@ -67,7 +67,7 @@
     },
     {
       "id": "6",
-      "deleted": true,
+      "deleted": false,
       "team": "IT Support",
       "fullName": "Nguyen Tan Pil",
       "address": "Kien Giang",
@@ -80,7 +80,7 @@
     },
     {
       "id": "7",
-      "deleted": true,
+      "deleted": false,
       "team": "Tester",
       "fullName": "Tran Hong Nhu",
       "address": "Kien Giang",
@@ -93,7 +93,7 @@
     },
     {
       "id": "8",
-      "deleted": false,
+      "deleted": true,
       "fullName": "Tran Thi Thu Ngan",
       "address": "Can Tho",
       "age": 3,
@@ -106,7 +106,7 @@
     },
     {
       "id": "9",
-      "deleted": false,
+      "deleted": true,
       "fullName": "Doan Thi Kim Tuyen",
       "address": "Kien Giang",
       "age": 4,
@@ -119,7 +119,7 @@
     },
     {
       "id": "aee2ed2b-47b1-4e9a-9881-c7b98841a083",
-      "deleted": true,
+      "deleted": false,
       "fullName": "Felix Nguyen",
       "address": "",
       "age": 22,
@@ -133,7 +133,7 @@
     {
       "id": "c5f2a74b-3ec5-4318-9338-f6afd47948a0",
       "deleted": true,
-      "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTA2t-l5SHRlLzaSwUJO33flcmeZdFtiFJk8A&usqp=CAU",
+      "avatar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTA2t-l5SHRlLzaSwUJO33flcmeZdFtiFJk8A&usqp=CAU",
       "fullName": "Pil Nguyen",
       "address": "",
       "age": 1,
@@ -146,7 +146,7 @@
     {
       "id": "f1314abd-46cb-483d-89c2-aa96fbaf13d5",
       "deleted": true,
-      "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTA2t-l5SHRlLzaSwUJO33flcmeZdFtiFJk8A&usqp=CAU",
+      "avatar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTA2t-l5SHRlLzaSwUJO33flcmeZdFtiFJk8A&usqp=CAU",
       "fullName": "Thanh Ngan",
       "address": "",
       "age": 1,
@@ -155,6 +155,97 @@
       "moneyPerHour": 1,
       "phoneNumber": "",
       "team": "QA"
+    },
+    {
+      "id": "a77ca421-a0ae-4ef8-8c86-e4fbb810babd",
+      "deleted": false,
+      "avatar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTA2t-l5SHRlLzaSwUJO33flcmeZdFtiFJk8A&usqp=CAU",
+      "fullName": "Pil Pil",
+      "address": "",
+      "age": 1,
+      "sex": "male",
+      "startDay": "2022-06-14",
+      "moneyPerHour": 1,
+      "phoneNumber": "",
+      "team": "Manager"
+    },
+    {
+      "id": "d0f968ac-d754-486c-b325-e815918ed393",
+      "deleted": true,
+      "avatar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTA2t-l5SHRlLzaSwUJO33flcmeZdFtiFJk8A&usqp=CAU",
+      "fullName": "Tuan Pil",
+      "address": "",
+      "age": 1,
+      "sex": "male",
+      "startDay": "2022-06-14",
+      "moneyPerHour": 1,
+      "phoneNumber": "",
+      "team": "Manager"
+    },
+    {
+      "id": "ec511d00-b15a-4cc1-a9bb-7301384311c8",
+      "deleted": true,
+      "avatar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTA2t-l5SHRlLzaSwUJO33flcmeZdFtiFJk8A&usqp=CAU",
+      "fullName": "Pil Nguyen",
+      "address": "",
+      "age": 1,
+      "sex": "male",
+      "startDay": "2022-06-14",
+      "moneyPerHour": 1,
+      "phoneNumber": "",
+      "team": "Manager"
+    },
+    {
+      "id": "01ec8a66-be7e-43eb-9257-3f360d36fa53",
+      "deleted": true,
+      "avatar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTA2t-l5SHRlLzaSwUJO33flcmeZdFtiFJk8A&usqp=CAU",
+      "fullName": "Nguyen pil",
+      "address": "",
+      "age": 1,
+      "sex": "male",
+      "startDay": "2022-06-14",
+      "moneyPerHour": 1,
+      "phoneNumber": "",
+      "team": "Manager"
+    },
+    {
+      "id": "ae946559-9562-4a3b-bc21-4a50cd194c32",
+      "deleted": false,
+      "avatar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTA2t-l5SHRlLzaSwUJO33flcmeZdFtiFJk8A&usqp=CAU",
+      "fullName": "Vo Thanh Cong",
+      "address": "",
+      "age": 1,
+      "sex": "male",
+      "startDay": "2022-06-14",
+      "moneyPerHour": 1,
+      "phoneNumber": "",
+      "team": "Manager"
+    },
+    {
+      "id": "cd397a32-038a-441b-b826-4769caae3754",
+      "deleted": false,
+      "avatar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTA2t-l5SHRlLzaSwUJO33flcmeZdFtiFJk8A&usqp=CAU",
+      "fullName": "Nguyen Thi Ngoc",
+      "address": "",
+      "age": 1,
+      "sex": "male",
+      "startDay": "2022-06-14",
+      "moneyPerHour": 1,
+      "phoneNumber": "",
+      "team": "Manager"
+    },
+    {
+      "id": "9e6286a0-e910-4ac4-9307-bb063e52f62b",
+      "deleted": false,
+      "avatar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTA2t-l5SHRlLzaSwUJO33flcmeZdFtiFJk8A&usqp=CAU",
+      "fullName": "Pil Pil Pil",
+      "address": "",
+      "age": 1,
+      "sex": "male",
+      "startDay": "2022-06-14",
+      "moneyPerHour": 1,
+      "phoneNumber": "",
+      "team": "Manager"
     }
   ],
   "teams": [
@@ -182,6 +273,10 @@
       "id": "5",
       "teamName": "Tester",
       "deleted": true
+    },
+    {
+      "id": "2993e481-dd89-4a9b-b80a-3f1017c7008d",
+      "teamName": "Front End"
     }
   ],
   "working": [
@@ -202,7 +297,7 @@
     {
       "id": "21",
       "employeeId": "1",
-      "deleted": true,
+      "deleted": false,
       "date": "2022-06-14",
       "hours": 1
     },
@@ -254,6 +349,13 @@
       "deleted": false,
       "date": "2022-06-14",
       "hours": 9
+    },
+    {
+      "id": "e201426a-c073-4a8f-95b0-53e80ab12323",
+      "employeeId": "a77ca421-a0ae-4ef8-8c86-e4fbb810babd",
+      "deleted": false,
+      "date": "2022-06-14",
+      "hours": 4
     }
   ],
   "advances": [

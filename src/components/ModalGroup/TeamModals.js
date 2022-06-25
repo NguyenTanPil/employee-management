@@ -31,6 +31,7 @@ export default function TeamModals({
         Form={
           <AddTeamForm
             ref={formikRef}
+            placeholder="Team Name"
             handleShowModal={setIsShowAddModal}
             handleAddNewEmployee={handleAddNewTeam}
           />

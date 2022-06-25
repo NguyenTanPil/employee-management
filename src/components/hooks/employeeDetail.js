@@ -7,6 +7,7 @@ export const useGetEmployeeById = ({
   page,
   searchContent,
   pageLimit,
+  sortCondition,
 }) => {
   const queryClient = useQueryClient();
 
@@ -17,14 +18,20 @@ export const useGetEmployeeById = ({
       enable: !!employeeId && !!page,
       initialData: () => {
         return queryClient
-          .getQueryData(['getEmployeeData', page, searchContent, pageLimit])
+          .getQueryData([
+            'getEmployeeData',
+            page,
+            searchContent,
+            pageLimit,
+            sortCondition,
+          ])
           ?.data.find((e) => e.id === employeeId);
       },
-    }
+    },
   );
 };
 
-export const useUpdateEmployeeById = (page, searchContent) => {
+export const useUpdateEmployeeById = () => {
   const queryClient = useQueryClient();
 
   return useMutation(updateEmployee, {
@@ -33,23 +40,7 @@ export const useUpdateEmployeeById = (page, searchContent) => {
       queryClient.setQueryData(['getEmployee', newEmployee.id], newEmployee);
 
       // update employee list with new employee
-      if (page !== '0') {
-        queryClient.setQueryData(
-          ['getEmployeeData', page, searchContent],
-          (prev) => ({
-            ...prev,
-            data: prev?.data.map((item) => {
-              if (item.id === newEmployee.id) {
-                return {
-                  ...item,
-                  ...newEmployee,
-                };
-              }
-              return item;
-            }),
-          })
-        );
-      }
+      queryClient.invalidateQueries(['getEmployeeData']);
     },
   });
 };

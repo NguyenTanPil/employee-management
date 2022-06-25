@@ -3,9 +3,10 @@ export const fetchEmployeeData = async ({
   pageParam = 1,
   limit = 3,
   searchContent = '',
+  sortCondition,
 }) => {
   const res = await fetch(
-    `http://localhost:4000/employees?q=${searchContent}&_page=${pageParam}&_limit=${limit}&deleted=false`
+    `http://localhost:4000/employees?q=${searchContent}&_page=${pageParam}&_limit=${limit}&_sort=${sortCondition.name}&_order=${sortCondition.status}&deleted=false`,
   );
 
   if (!res.ok) {
@@ -23,7 +24,7 @@ export const fetchEmployeeData = async ({
 // GET employee by team id
 export const fetchEmployeeByTeamId = async (teamName) => {
   const res = await fetch(
-    `http://localhost:4000/employees?team=${teamName}&delete=false`
+    `http://localhost:4000/employees?team=${teamName}&deleted=false`,
   );
 
   if (!res.ok) {
@@ -100,9 +101,28 @@ export const updateEmployee = async (employee) => {
 // PATCH update many employee by employee id list
 export const deleteEmployeeBySelected = async (employeeIdList) => {
   const promiseList = employeeIdList.map((employeeId) =>
-    deleteEmployee(employeeId)
+    deleteEmployee(employeeId),
   );
   const deleteList = await Promise.all(promiseList);
 
   return deleteList.map((item) => item.id);
+};
+
+// PATCH update employee avatar
+export const updateEmployeeAvatar = async ({ employeeId, imgUrl }) => {
+  const res = await fetch(`http://localhost:4000/employees/${employeeId}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      avatar: imgUrl,
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error(res.statusText);
+  }
+
+  return res.json();
 };

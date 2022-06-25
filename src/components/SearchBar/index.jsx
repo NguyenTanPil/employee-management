@@ -11,7 +11,7 @@ import { TextInput } from '../../common/Input';
 import useDebounce from '../hooks/useDebounce';
 import { Container, SearchWrap } from './SearchBarStyles';
 
-const SearchBar = ({ employeeListLength, placeholder }) => {
+const SearchBar = ({ placeholder }) => {
   const { searchContent } = useSnapshot(store);
   const [txtInput, setTxtInput] = useState(searchContent);
   const debounceSearchContent = useDebounce(txtInput, 350);

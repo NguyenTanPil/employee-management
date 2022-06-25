@@ -2,19 +2,17 @@ import { useEffect, useState } from 'react';
 import { CgTrash } from 'react-icons/cg';
 import { RiAddLine } from 'react-icons/ri';
 import { TbListDetails } from 'react-icons/tb';
-import { useMutation } from 'react-query';
 import { v4 as uuidv4 } from 'uuid';
 import { useSnapshot } from 'valtio';
 import {
-  createNewEmployee,
   deleteEmployee,
   deleteEmployeeBySelected,
 } from '../../../api/employeeApi';
-import { chooseTeamName, onChangeEmployeePerPage } from '../../../app/actions';
+import { chooseTeamName, setSortBy, setColumns } from '../../../app/actions';
 import { store } from '../../../app/store';
 import { IconButton, IconLinkButton } from '../../../common/Button';
 import { CheckBox } from '../../../common/Input';
-import { Table, TRow, TRowItem } from '../../../common/Table';
+import { SortIcons, Table, TRow, TRowItem } from '../../../common/Table';
 import { TextLink } from '../../../common/Text';
 import {
   createCheckedList,
@@ -27,7 +25,6 @@ import {
   useGetEmployeeListBySearchContent,
 } from '../../hooks/employee';
 import LoadingSpinner from '../../LoadingSpinner';
-import EmployeeModals from '../../ModalGroup/EmployeeModals';
 import NoneSpinner from '../../NoneSpinner';
 import Pagination from '../../Pagination';
 import SearchBar from '../../SearchBar';
@@ -40,11 +37,16 @@ import {
   SideEmployeeList,
   SideSearch,
   SideTitle,
+  TitleTable,
 } from './EmployeeListStyles';
+import EmployeeModals from '../../ModalGroup/EmployeeModals';
+import { TiArrowSortedDown, TiArrowSortedUp } from 'react-icons/ti';
+import SelectMultiple from '../../SelectMultiple';
 
 const Home = () => {
   // states
-  const { searchContent, employeePerPage } = useSnapshot(store);
+  const { searchContent, employeePerPage, sortBy, columns } =
+    useSnapshot(store);
   const [page, setPage] = useState(1);
   const [checkedList, setCheckedList] = useState();
   const [isShowAddModal, setIsShowAddModal] = useState(false);
@@ -56,11 +58,12 @@ const Home = () => {
     data: employeeList,
     isLoading: isEmployeeListLoading,
     error,
-    isPreviousData: isPreviousEmployeeList,
+    refetch,
   } = useGetEmployeeListBySearchContent({
     page,
     searchContent,
     pageLimit: employeePerPage,
+    sortCondition: columns.find((col) => col.name === sortBy),
   });
 
   // functions
@@ -68,15 +71,11 @@ const Home = () => {
 
   const { mutate: deleteEmployeeMutate } = useDeleteEmployeeBySelected({
     deleteFn: deleteEmployee,
-    page,
-    searchContent,
   });
 
   const { mutate: deleteEmployeeBySelectedMutate } =
     useDeleteEmployeeBySelected({
       deleteFn: deleteEmployeeBySelected,
-      page,
-      searchContent,
     });
 
   const handleChecked = (idx) => {
@@ -105,6 +104,7 @@ const Home = () => {
     };
     setIsShowAddModal(false);
     addNewEmployeeMutate(newEmployee);
+    refetch();
   };
 
   const handleShowDeleteEmployeeModal = (idx) => {
@@ -112,25 +112,50 @@ const Home = () => {
     setIsShowDeleteModal(true);
   };
 
+  const handleSortEmployeeListByColumn = (colName) => {
+    if (sortBy === colName) {
+      setColumns(colName);
+    }
+    setSortBy(colName);
+  };
+
+  const getSelected = (colName) => {
+    const colList = columns.map((col) => col.name);
+    return colList.includes(colName);
+  };
+
+  const convertProxyToArray = () => {
+    let newCols = columns.map((col) => ({ ...col }));
+    const colFullName = newCols.find((col) => col.name === 'fullName');
+    newCols = newCols.filter((col) => col.name !== 'fullName');
+
+    return [
+      colFullName,
+      ...newCols.sort((a, b) =>
+        a.name > b.name ? 1 : a.name < b.name ? -1 : 0,
+      ),
+    ];
+  };
+
+  const getColumnsTable = () => {
+    const restValueColumns = columns.map((_) => {
+      return 60 / (columns.length - 1);
+    });
+
+    return [5, 20, ...restValueColumns.slice(1), 15];
+  };
+
   useEffect(() => {
     if (employeeList?.data) {
       setCheckedList(
-        createCheckedList(employeeList?.data.filter((item) => !item.deleted))
+        createCheckedList(employeeList?.data.filter((item) => !item.deleted)),
       );
     }
-  }, [employeeList?.data]);
 
-  useEffect(() => {
-    if (!employeeList?.data.length || !employeeList?.data) {
+    if (employeeList?.data.length === 0 && !isEmployeeListLoading) {
       setPage((prev) => Math.max(prev - 1, 1));
     }
-  }, [employeePerPage, employeeList?.data]);
-
-  // useEffect(() => {
-  //   if (employeeList?.data.length) {
-  //     onChangeEmployeePerPage(employeeList?.data.length);
-  //   }
-  // }, [searchContent, employeeList?.data]);
+  }, [employeeList?.data]);
 
   if (isEmployeeListLoading || !checkedList) {
     return <LoadingSpinner />;
@@ -178,17 +203,17 @@ const Home = () => {
         <EmployeeTotal>
           <h3>Total: {employeeList.total}</h3>
         </EmployeeTotal>
-        <SearchBar
-          employeeListLength={employeeList?.data.length}
-          placeholder="Search employee by name..."
-        />
+        <SearchBar placeholder="Search employee by name..." />
       </SideSearch>
       <SideEmployeeList>
-        <h4>Search Result</h4>
+        <TitleTable>
+          <h4>Search Result</h4>
+          <SelectMultiple />
+        </TitleTable>
         {employeeList.data.filter((item) => !item.deleted).length === 0 ? (
           <NoneSpinner text="Don't have any employee" />
         ) : (
-          <Table type="secondary" widthCols={[10, 35, 15, 20, 20]}>
+          <Table type="secondary" widthCols={getColumnsTable()}>
             <TRow isRowTitle>
               <TRowItem>
                 <CheckBox
@@ -196,9 +221,20 @@ const Home = () => {
                   onClick={() => handleChecked('0')}
                 />
               </TRowItem>
-              <TRowItem>FullName</TRowItem>
-              <TRowItem>Phone</TRowItem>
-              <TRowItem>Team</TRowItem>
+
+              {convertProxyToArray().map((col) => (
+                <TRowItem key={col.name + col.status}>
+                  {col.name === 'moneyPerHour' ? 'money/h' : col.name}
+                  <SortIcons
+                    active={sortBy === col.name}
+                    order={col.status}
+                    onClick={() => handleSortEmployeeListByColumn(col.name)}
+                  >
+                    <TiArrowSortedUp />
+                    <TiArrowSortedDown />
+                  </SortIcons>
+                </TRowItem>
+              ))}
               <TRowItem>Options</TRowItem>
             </TRow>
 
@@ -212,20 +248,46 @@ const Home = () => {
                     onClick={() => handleChecked(employee.id)}
                   />
                 </TRowItem>
-                <TRowItem data-label="FullName">
-                  <TextLink to={`/employee/${page}/${employee.id}`}>
-                    {employee.fullName}
-                  </TextLink>
-                </TRowItem>
-                <TRowItem data-label="Phone">{employee.phoneNumber}</TRowItem>
-                <TRowItem data-label="Team">
-                  <TextLink
-                    to={`/team`}
-                    onClick={() => chooseTeamName(employee.team)}
-                  >
-                    {employee.team}
-                  </TextLink>
-                </TRowItem>
+                {getSelected('fullName') && (
+                  <TRowItem data-label="FullName">
+                    <TextLink to={`/employee/${page}/${employee.id}`}>
+                      {employee.fullName}
+                    </TextLink>
+                  </TRowItem>
+                )}
+                {getSelected('address') && (
+                  <TRowItem data-label="Address">{employee.address}</TRowItem>
+                )}
+
+                {getSelected('age') && (
+                  <TRowItem data-label="Age">{employee.age}</TRowItem>
+                )}
+                {getSelected('moneyPerHour') && (
+                  <TRowItem data-label="moneyPerHour">
+                    {employee.moneyPerHour}
+                  </TRowItem>
+                )}
+                {getSelected('phone') && (
+                  <TRowItem data-label="Phone">{employee.phoneNumber}</TRowItem>
+                )}
+                {getSelected('sex') && (
+                  <TRowItem data-label="Sex">{employee.sex}</TRowItem>
+                )}
+                {getSelected('startDay') && (
+                  <TRowItem data-label="startDay">{employee.startDay}</TRowItem>
+                )}
+
+                {getSelected('team') && (
+                  <TRowItem data-label="Team">
+                    <TextLink
+                      to={`/team`}
+                      onClick={() => chooseTeamName(employee.team)}
+                    >
+                      {employee.team}
+                    </TextLink>
+                  </TRowItem>
+                )}
+
                 <TRowItem data-label="Options">
                   <Options>
                     <IconLinkButton to={`/employee/${page}/${employee.id}`}>
@@ -247,10 +309,8 @@ const Home = () => {
 
       <Pagination
         pageNumber={Math.ceil(employeeList.total / employeePerPage)}
-        maxEmployeePerPage={employeeList.total}
+        maxEmployeePerPage={employeeList?.total}
         page={page}
-        employeePerPage={employeePerPage}
-        isPreviousData={isPreviousEmployeeList}
         setPage={setPage}
       />
     </Container>

@@ -20,16 +20,49 @@ export const LeftSide = styled.div`
 `;
 
 export const Avatar = styled.div`
+  position: relative;
   width: 60%;
 
+  &:hover {
+    & > div {
+      display: flex;
+    }
+  }
+
   img {
-    max-width: 24rem;
     border-radius: 0.8rem;
+    display: block;
+    max-width: 24rem;
     width: 100%;
   }
 
   @media only screen and (min-width: 576px) {
     width: 100%;
+  }
+`;
+
+export const OverlayAvatar = styled.div`
+  background-color: rgba(91, 112, 131, 0.4);
+  border-radius: 0.4rem;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+
+  button {
+    background-color: ${(props) => props.theme.backgroundColor};
+    border-radius: 50%;
+    font-size: 2rem;
+
+    &:hover {
+      background-color: ${(props) => props.theme.buttonBackgroundColor};
+      border-color: ${(props) => props.theme.buttonBackgroundColor};
+      color: ${(props) => props.theme.backgroundColor};
+    }
   }
 `;
 

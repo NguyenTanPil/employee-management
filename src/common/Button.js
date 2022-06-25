@@ -177,7 +177,7 @@ export const NavButton = styled(TextButton).attrs((props) => ({
 `;
 
 export const OriginTextButton = styled(Button).attrs((props) =>
-  getColorStyle(props)
+  getColorStyle(props),
 )`
   background-color: ${(props) => props.backgroundColor};
   border: 0.2rem solid ${(props) => props.backgroundColor};
@@ -270,7 +270,7 @@ export const PageButton = styled(Button).attrs((props) => ({
   svg {
     display: inline-block;
     flex-shrink: 0;
-    fill: currentColor;
+    /* fill: currentColor; */
     font-size: 1.5rem;
     font-size: 1.25rem;
     height: 2.4rem;

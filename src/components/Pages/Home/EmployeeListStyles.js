@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const Container = styled.div`
-  width: 100%:
+  width: 100%;
 `;
 
 export const SideTitle = styled.div`
@@ -45,12 +45,6 @@ export const EmployeeTotal = styled.div`
 `;
 
 export const SideEmployeeList = styled.div`
-  h4 {
-    color: ${(props) => props.theme.titleColor};
-    font-size: 1.5rem;
-    font-weight: 600;
-  }
-
   & > div > div:first-child > div:first-child {
     border-bottom: 0.1rem solid ${(props) => props.theme.borderColor};
     display: flex;
@@ -70,5 +64,18 @@ export const Options = styled.div`
     font-size: 1.8rem;
     padding-bottom: 0;
     padding-top: 0;
+  }
+`;
+
+export const TitleTable = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+
+  h4 {
+    color: ${(props) => props.theme.titleColor};
+    font-size: 1.5rem;
+    font-weight: 600;
   }
 `;

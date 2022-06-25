@@ -2,15 +2,19 @@ import { useRef } from 'react';
 import AddEmployeeForm from '../AddEmployeeForm';
 import AddModal from '../AddModal';
 import AlertDeleteModal from '../AlertDeleteModal';
+import AddTeamForm from '../AddTeamForm';
 
 export default function EmployeeDetailModals({
   employee,
   isShowDeleteModal,
   isShowEditModal,
+  isShowUpdateAvatarModal,
   setIsShowEditModal,
   setIsShowDeleteModal,
   handleEditEmployee,
   handleDeleteEmployee,
+  setIsShowUpdateAvatarModal,
+  handleUpdateEmployeeAvatar,
 }) {
   const formikRef = useRef();
 
@@ -36,6 +40,20 @@ export default function EmployeeDetailModals({
           handleCloseModal={handleCloseModal}
         />
       )}
+
+      <AddModal
+        title="update employee avatar"
+        Form={
+          <AddTeamForm
+            ref={formikRef}
+            placeholder="Employee avatar"
+            handleShowModal={setIsShowUpdateAvatarModal}
+            handleAddNewEmployee={handleUpdateEmployeeAvatar}
+          />
+        }
+        isShowModal={isShowUpdateAvatarModal}
+        handleCloseModal={handleCloseModal}
+      />
 
       <AlertDeleteModal
         deleteIdx={employee.id}
