@@ -210,7 +210,7 @@
     },
     {
       "id": "ae946559-9562-4a3b-bc21-4a50cd194c32",
-      "deleted": false,
+      "deleted": true,
       "avatar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTA2t-l5SHRlLzaSwUJO33flcmeZdFtiFJk8A&usqp=CAU",
       "fullName": "Vo Thanh Cong",
       "address": "",
@@ -356,6 +356,13 @@
       "deleted": false,
       "date": "2022-06-14",
       "hours": 4
+    },
+    {
+      "id": "444e84f0-9636-4534-9c89-f50f74e8daf0",
+      "employeeId": "aee2ed2b-47b1-4e9a-9881-c7b98841a083",
+      "deleted": false,
+      "date": "2022-06-14",
+      "hours": 8
     }
   ],
   "advances": [
@@ -393,6 +400,13 @@
       "deleted": false,
       "date": "2022-06-14",
       "money": 1
+    },
+    {
+      "id": "7800adaa-5159-4d87-a533-59ee7d31f137",
+      "employeeId": "aee2ed2b-47b1-4e9a-9881-c7b98841a083",
+      "deleted": false,
+      "date": "2022-06-14",
+      "money": 20
     }
   ],
   "statistics": [

@@ -11,7 +11,7 @@ export const store = proxy({
       status: 'asc',
     },
     {
-      name: 'phone',
+      name: 'phoneNumber',
       status: 'asc',
     },
     {

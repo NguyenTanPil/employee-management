@@ -16,7 +16,7 @@ const columnNames = [
   'sex',
   'startDay',
   'moneyPerHour',
-  'phone',
+  'phoneNumber',
   'team',
 ];
 

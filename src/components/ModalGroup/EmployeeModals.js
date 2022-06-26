@@ -8,6 +8,7 @@ export default function EmployeeModals({
   isShowDeleteAllModal,
   isShowAddModal,
   isShowDeleteModal,
+  totalSelected,
   setIsShowAddModal,
   handleAddNewEmployee,
   setIsShowDeleteAllModal,
@@ -39,8 +40,8 @@ export default function EmployeeModals({
       )}
 
       <AlertDeleteModal
-        title="Are you sure  delete all selected employees?"
-        message="Will delete all selected employee data!"
+        title="Are you sure delete all selected employees?"
+        message={`Will delete ${totalSelected} employees!`}
         isShowModal={isShowDeleteAllModal}
         handleShowModal={setIsShowDeleteAllModal}
         handleDeleteAllSelected={handleDeleteAllSelected}

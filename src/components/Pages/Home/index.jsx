@@ -173,6 +173,10 @@ const Home = () => {
           isShowAddModal={isShowAddModal}
           isShowDeleteAllModal={isShowDeleteAllModal}
           isShowDeleteModal={isShowDeleteModal}
+          totalSelected={checkedList.reduce(
+            (t, c) => (c.status && c.id !== '0' ? t + 1 : t),
+            0,
+          )}
           setIsShowAddModal={setIsShowAddModal}
           handleAddNewEmployee={handleAddNewEmployee}
           setIsShowDeleteAllModal={setIsShowDeleteAllModal}
@@ -267,8 +271,10 @@ const Home = () => {
                     {employee.moneyPerHour}
                   </TRowItem>
                 )}
-                {getSelected('phone') && (
-                  <TRowItem data-label="Phone">{employee.phoneNumber}</TRowItem>
+                {getSelected('phoneNumber') && (
+                  <TRowItem data-label="phoneNumber">
+                    {employee.phoneNumber}
+                  </TRowItem>
                 )}
                 {getSelected('sex') && (
                   <TRowItem data-label="Sex">{employee.sex}</TRowItem>

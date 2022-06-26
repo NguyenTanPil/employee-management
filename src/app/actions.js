@@ -42,6 +42,7 @@ export const handleChangeColumns = (colName) => {
   const colList = store.columns.map((col) => col.name);
 
   if (colList.includes(colName)) {
+    store.sortBy = 'fullName';
     store.columns = store.columns.filter((col) => col.name !== colName);
   } else {
     store.columns = [...store.columns, proxy({ name: colName, status: 'asc' })];
