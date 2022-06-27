@@ -31,7 +31,6 @@ const SelectMultiple = () => {
 
   const handleSelectColumn = (colName) => {
     handleChangeColumns(colName);
-    setShowOptions(false);
   };
 
   return (

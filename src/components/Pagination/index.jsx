@@ -70,7 +70,7 @@ const Pagination = ({ pageNumber, maxEmployeePerPage, page, setPage }) => {
       setPageLimit(
         maxEmployeePerPage > employeePerPage
           ? employeePerPage
-          : maxEmployeePerPage,
+          : maxEmployeePerPage
       );
     } else {
       setPageLimit(parseInt(employeePerPage));

@@ -4,7 +4,6 @@ import { TextButton } from '../../common/Button';
 import { ModalFooter } from '../../common/Modal';
 import FilledInput from '../FilledInput';
 import { useGetTeamList } from '../hooks/team';
-import LoadingSpinner from '../LoadingSpinner';
 import SelectInput from '../SelectInput';
 import { InputGroup } from './AddEmployeeFormStyles';
 

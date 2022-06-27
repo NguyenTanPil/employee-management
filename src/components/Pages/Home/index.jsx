@@ -132,7 +132,7 @@ const Home = () => {
     return [
       colFullName,
       ...newCols.sort((a, b) =>
-        a.name > b.name ? 1 : a.name < b.name ? -1 : 0,
+        a.name > b.name ? 1 : a.name < b.name ? -1 : 0
       ),
     ];
   };
@@ -142,20 +142,23 @@ const Home = () => {
       return 60 / (columns.length - 1);
     });
 
-    return [5, 20, ...restValueColumns.slice(1), 15];
+    if (restValueColumns.length > 1) {
+      return [5, 20, ...restValueColumns.slice(1), 15];
+    }
+    return [10, 45, 45];
   };
 
   useEffect(() => {
     if (employeeList?.data) {
       setCheckedList(
-        createCheckedList(employeeList?.data.filter((item) => !item.deleted)),
+        createCheckedList(employeeList?.data.filter((item) => !item.deleted))
       );
     }
 
     if (employeeList?.data.length === 0 && !isEmployeeListLoading) {
       setPage((prev) => Math.max(prev - 1, 1));
     }
-  }, [employeeList?.data]);
+  }, [employeeList?.data, isEmployeeListLoading]);
 
   if (isEmployeeListLoading || !checkedList) {
     return <LoadingSpinner />;
@@ -175,7 +178,7 @@ const Home = () => {
           isShowDeleteModal={isShowDeleteModal}
           totalSelected={checkedList.reduce(
             (t, c) => (c.status && c.id !== '0' ? t + 1 : t),
-            0,
+            0
           )}
           setIsShowAddModal={setIsShowAddModal}
           handleAddNewEmployee={handleAddNewEmployee}

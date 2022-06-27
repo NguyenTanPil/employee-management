@@ -14,7 +14,7 @@ const Header = ({ theme, setTheme }) => {
     <Container>
       <Logo to="/employee">
         <img src={logo} alt="logo" />
-        <span>Employee Manager</span>
+        <span>Employee Manage</span>
       </Logo>
       <Menu>
         <ThemeButton active onClick={handleSetTheme}>

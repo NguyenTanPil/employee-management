@@ -46,7 +46,7 @@ export default function EmployeeDetailModals({
         Form={
           <AddTeamForm
             ref={formikRef}
-            placeholder="Employee avatar"
+            placeholder="Employee avatar url"
             handleShowModal={setIsShowUpdateAvatarModal}
             handleAddNewEmployee={handleUpdateEmployeeAvatar}
           />

@@ -1,10 +1,7 @@
 import { useEffect, useState } from 'react';
 import { CgSearch } from 'react-icons/cg';
 import { useSnapshot } from 'valtio';
-import {
-  onChangeEmployeePerPage,
-  onChangeSearchContent,
-} from '../../app/actions';
+import { onChangeSearchContent } from '../../app/actions';
 import { store } from '../../app/store';
 import { SearchButton } from '../../common/Button';
 import { TextInput } from '../../common/Input';
